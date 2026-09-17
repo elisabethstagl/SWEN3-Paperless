@@ -20,5 +20,20 @@ services:
     depends_on:
       - postgres
 
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    profiles:
+      - full
+
+
+
 volumes:
   postgres-data:
+

@@ -28,7 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>25</java.version>
-	</properties>
+        <itext.version>9.7.0</itext.version>
+    </properties>
 
 	<dependencyManagement>
 		<dependencies>
@@ -43,7 +44,20 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
+
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-core</artifactId>
+            <version>9.7.0</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>bouncy-castle-adapter</artifactId>
+            <version>9.7.0</version>
+        </dependency>
+
+        <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
@@ -99,7 +113,8 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<executions>
+                <version>3.15.0</version>
+                <executions>
 					<execution>
 						<id>default-compile</id>
 						<phase>compile</phase>
