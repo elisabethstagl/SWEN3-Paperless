@@ -1,0 +1,22 @@
+info:
+  name: Update Document
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://localhost:8081/api/documents
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /Users/maximilianjandl/Downloads/Minitest5_Research1.pdf
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

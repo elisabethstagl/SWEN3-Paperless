@@ -1,0 +1,15 @@
+info:
+  name: delete Document by ID
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:8081/api/documents/c29465f4-c587-41be-839d-bac1a0a5c682
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
