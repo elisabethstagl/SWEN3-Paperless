@@ -34,3 +34,5 @@ build/
 
 ### ignores .env file ###
 .env
+
+.DS_Store
