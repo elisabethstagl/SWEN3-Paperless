@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>25</java.version>
         <itext.version>9.7.0</itext.version>
+		<argLine></argLine>
     </properties>
 
 	<dependencyManagement>
@@ -146,6 +147,25 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>properties</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

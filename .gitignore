@@ -33,6 +33,6 @@ build/
 .vscode/
 
 ### ignores .env file ###
-.env
+backend/.env
 
 .DS_Store

@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class DocumentService {
@@ -23,6 +20,15 @@ public class DocumentService {
     public DocumentService(DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
     }
+
+    public List<Document> getAllDocuments() {
+        return documentRepository.findAll();
+    }
+
+    public Optional<Document> getDocumentByID(UUID id) {
+        return documentRepository.findById(id);
+    }
+
 
     public Document upload(MultipartFile file) throws IOException {
         Document doc = extractMetadata(file);
@@ -37,13 +43,10 @@ public class DocumentService {
         return doc;
     }
 
-    public Optional<Document> getDocumentByID(UUID id) {
-        return documentRepository.findById(id);
-    }
 
     public Optional<Document> deleteDocument(UUID id) {
         Optional<Document> doc = getDocumentByID(id);
-        if(doc.isPresent()) {
+        if (doc.isPresent()) {
             documentRepository.delete(doc.get());
 
             //delete in MinIO
@@ -53,7 +56,7 @@ public class DocumentService {
 
     public Optional<Document> updateDocument(UUID id, MultipartFile file) throws IOException {
         Optional<Document> doc = getDocumentByID(id);
-        if(doc.isPresent()) {
+        if (doc.isPresent()) {
             Document newDoc = extractMetadata(file);
             newDoc.setId(doc.get().getId());
 

@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,28 +22,34 @@ public class DocumentController {
         this.documentService = documentService;
     }
 
-
-    @PostMapping
-    public ResponseEntity<Document> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
-        Document created = documentService.upload(file);
-        return new ResponseEntity<>(created, HttpStatus.ACCEPTED);
+    @GetMapping
+    public ResponseEntity<List<Document>> getAllDocuments() {
+        List<Document> documents = documentService.getAllDocuments();
+        return ResponseEntity.ok(documents);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Document> getDocumentByID(@PathVariable UUID id)  {
+    public ResponseEntity<Document> getDocumentByID(@PathVariable UUID id) {
         Optional<Document> created = documentService.getDocumentByID(id);
-        if(created.isPresent()) {
-            return new ResponseEntity<>(created.get(), HttpStatus.ACCEPTED);
+        if (created.isPresent()) {
+            return new ResponseEntity<>(created.get(), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/{id}")
+
+    @PostMapping
+    public ResponseEntity<Document> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
+        Document created = documentService.upload(file);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
     public ResponseEntity<Document> updateDocument(@PathVariable UUID id, @RequestParam("file") MultipartFile file) throws IOException {
         Optional<Document> doc = documentService.updateDocument(id, file);
 
-        if(doc.isPresent()) {
-            return new ResponseEntity<>(doc.get(), HttpStatus.ACCEPTED);
+        if (doc.isPresent()) {
+            return new ResponseEntity<>(doc.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -51,14 +59,11 @@ public class DocumentController {
     public ResponseEntity<Document> deleteDocument(@PathVariable UUID id) {
         Optional<Document> doc = documentService.deleteDocument(id);
 
-        if(doc.isPresent()) {
-            return new ResponseEntity<>(doc.get(), HttpStatus.ACCEPTED);
+        if (doc.isPresent()) {
+            return new ResponseEntity<>(doc.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-
-
 
 }
