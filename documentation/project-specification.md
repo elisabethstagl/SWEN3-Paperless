@@ -102,9 +102,39 @@ Current unit tests cover:
 
 # Additional Use Case
 
-> TODO: 
+Users can add notes to their files.
 
 ## Description
 
-> Users can...
 
+The additional use case allows users to create and manage notes associated with their documents. A document can have multiple notes, which can be used to store comments, reminders, or other additional information related to the document.
+
+Each note is stored as a separate entity and is associated with a specific document. Users can create, view, update, and delete notes.
+
+# Tracked Time
+
+## Elisabeth Stagl
+
+### Sprint 1
+
+| Task / Feature                                   | Time (h) |
+|--------------------------------------------------|:--------:|
+| Git Repository Setup and Spring Boot Integration |   0.5    |
+| Docker Setup                                     |   2.0    |
+| Small Changes                                    |   0.5    |
+| Additional Use Case                              |   1.0    |
+| Protocol / Project Specification                 |   1.0    |
+| **Subtotal**                                     | **0.0**  |
+
+## Maximilian Jandl
+
+### Sprint 1
+
+| Task / Feature                                   | Time (h) |
+|--------------------------------------------------|:--------:|
+| Git Repository Setup and Spring Boot Integration |   0.5    |
+| Docker Setup                                     |   2.0    |
+| Small Changes                                    |   0.5    |
+| Additional Use Case                              |   1.0    |
+| Protocol / Project Specification                 |   1.0    |
+| **Subtotal**                                     | **0.0**  |
