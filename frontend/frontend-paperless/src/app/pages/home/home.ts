@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import {RouterLink} from '@angular/router';
-import {MatSlideToggle} from '@angular/material/slide-toggle';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDivider} from '@angular/material/list';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, MatSlideToggle ],
+  imports: [MatButtonModule, MatIconModule, MatDivider],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
