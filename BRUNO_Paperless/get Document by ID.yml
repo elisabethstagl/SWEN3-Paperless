@@ -1,11 +1,11 @@
 info:
   name: get Document by ID
   type: http
-  seq: 2
+  seq: 7
 
 http:
   method: GET
-  url: http://localhost:8081/api/documents/a8e250d2-5ecc-40ce-8167-158b6736b882
+  url: http://localhost:8081/api/documents/{{id}}
   auth: inherit
 
 settings:
@@ -13,3 +13,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

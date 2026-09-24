@@ -1,6 +1,7 @@
 package at.fhtw.backend.business;
 
 import at.fhtw.backend.model.Document;
+import at.fhtw.backend.model.DocumentDTO;
 import at.fhtw.backend.persistence.DocumentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -97,7 +98,7 @@ class DocumentServiceTest {
         when(documentRepository.findById(id))
                 .thenReturn(Optional.of(document));
 
-        Optional<Document> result = documentService.deleteDocument(id);
+        Optional<DocumentDTO> result = documentService.deleteDocument(id);
 
         assertTrue(result.isPresent());
         assertEquals(document, result.get());
@@ -113,7 +114,7 @@ class DocumentServiceTest {
         when(documentRepository.findById(id))
                 .thenReturn(Optional.empty());
 
-        Optional<Document> result = documentService.deleteDocument(id);
+        Optional<DocumentDTO> result = documentService.deleteDocument(id);
 
         assertTrue(result.isEmpty());
         verify(documentRepository, never()).delete(any());

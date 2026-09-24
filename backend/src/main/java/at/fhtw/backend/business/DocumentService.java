@@ -1,11 +1,11 @@
 package at.fhtw.backend.business;
 
+import at.fhtw.backend.PDFMetadataExtractor;
 import at.fhtw.backend.model.Document;
+import at.fhtw.backend.model.DocumentDTO;
+import at.fhtw.backend.model.DocumentMapper;
 import at.fhtw.backend.persistence.DocumentRepository;
-import com.itextpdf.kernel.pdf.PdfDate;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfDocumentInfo;
-import com.itextpdf.kernel.pdf.PdfReader;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,12 +13,15 @@ import java.io.IOException;
 import java.util.*;
 
 @Service
+@Transactional
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
+    private final DocumentMapper documentMapper;
 
-    public DocumentService(DocumentRepository documentRepository) {
+    public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper) {
         this.documentRepository = documentRepository;
+        this.documentMapper = documentMapper;
     }
 
     public List<Document> getAllDocuments() {
@@ -29,65 +32,51 @@ public class DocumentService {
         return documentRepository.findById(id);
     }
 
+    public Optional<DocumentDTO> upload(MultipartFile file) throws IOException {
 
-    public Document upload(MultipartFile file) throws IOException {
-        Document doc = extractMetadata(file);
-        doc.setId(UUID.randomUUID());
+        UUID id = UUID.randomUUID();
 
-        //save in postgres
-        doc = documentRepository.save(doc);
+        DocumentDTO dto = PDFMetadataExtractor.extractMetadata(file);
 
-        //save in MINIO
+        Document document = documentMapper.toEntity(dto);
+
+        document.setId(id);
 
 
-        return doc;
+        document = documentRepository.save(document);
+
+
+
+        return Optional.of(documentMapper.toDTO(document));
     }
 
 
-    public Optional<Document> deleteDocument(UUID id) {
+    public Optional<DocumentDTO> deleteDocument(UUID id) {
         Optional<Document> doc = getDocumentByID(id);
-        if (doc.isPresent()) {
-            documentRepository.delete(doc.get());
-
-            //delete in MinIO
+        if (doc.isEmpty()) {
+            return Optional.empty();
         }
-        return doc;
+
+        documentRepository.delete(doc.get());
+        return Optional.of(documentMapper.toDTO(doc.get()));
     }
 
-    public Optional<Document> updateDocument(UUID id, MultipartFile file) throws IOException {
-        Optional<Document> doc = getDocumentByID(id);
-        if (doc.isPresent()) {
-            Document newDoc = extractMetadata(file);
-            newDoc.setId(doc.get().getId());
+    public Optional<DocumentDTO> updateDocument(UUID id, MultipartFile file) throws IOException {
+        Optional<Document> existing = getDocumentByID(id);
 
-            //save in MinIO
-
-            return Optional.of(documentRepository.save(newDoc));
+        if (existing.isEmpty()) {
+            return Optional.empty();
         }
-        return doc;
+
+        DocumentDTO dto = PDFMetadataExtractor.extractMetadata(file);
+        documentMapper.updateEntity(dto, existing.get());
+
+        Document saved = documentRepository.save(existing.get());
+
+        return Optional.of(documentMapper.toDTO(saved));
+
+
     }
 
 
-    private Document extractMetadata(MultipartFile file) throws IOException {
-
-        //read PDF metadata in iTextPDF
-        PdfReader reader = new PdfReader(file.getInputStream());
-        PdfDocument doc = new PdfDocument(reader);
-        PdfDocumentInfo docInfo = doc.getDocumentInfo();
-
-        //get created on Date
-        String rawCreationDate = doc.getDocumentInfo().getMoreInfo("CreationDate");
-        Calendar calender = PdfDate.decode(rawCreationDate);
-        Date createdOn = calender.getTime();
-        System.out.println("Raw Creation Date: " + createdOn);
-
-
-        return Document.builder()
-                .filename(file.getOriginalFilename())
-                .author(docInfo.getAuthor())
-                .creator(docInfo.getCreator())
-                .pages(doc.getNumberOfPages())
-                .createdOn(createdOn)
-                .build();
-    }
 }

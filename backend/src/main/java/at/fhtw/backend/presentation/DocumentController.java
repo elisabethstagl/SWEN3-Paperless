@@ -1,7 +1,10 @@
 package at.fhtw.backend.presentation;
 
 import at.fhtw.backend.business.DocumentService;
+import at.fhtw.backend.business.NoteService;
 import at.fhtw.backend.model.Document;
+import at.fhtw.backend.model.DocumentDTO;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +20,11 @@ import java.util.UUID;
 public class DocumentController {
 
     private final DocumentService documentService;
+    private final NoteService noteService;
 
-    public DocumentController(DocumentService documentService) {
+    public DocumentController(DocumentService documentService, NoteService noteService) {
         this.documentService = documentService;
+        this.noteService = noteService;
     }
 
     @GetMapping
@@ -39,14 +44,14 @@ public class DocumentController {
 
 
     @PostMapping
-    public ResponseEntity<Document> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
-        Document created = documentService.upload(file);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    public ResponseEntity<DocumentDTO> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {
+        Optional<DocumentDTO> created = documentService.upload(file);
+        return new ResponseEntity<>(created.get(), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Document> updateDocument(@PathVariable UUID id, @RequestParam("file") MultipartFile file) throws IOException {
-        Optional<Document> doc = documentService.updateDocument(id, file);
+    public ResponseEntity<DocumentDTO> updateDocument(@PathVariable UUID id, @RequestParam("file") MultipartFile file) throws IOException {
+        Optional<DocumentDTO> doc = documentService.updateDocument(id, file);
 
         if (doc.isPresent()) {
             return new ResponseEntity<>(doc.get(), HttpStatus.OK);
@@ -56,8 +61,8 @@ public class DocumentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Document> deleteDocument(@PathVariable UUID id) {
-        Optional<Document> doc = documentService.deleteDocument(id);
+    public ResponseEntity<DocumentDTO> deleteDocument(@PathVariable UUID id) {
+        Optional<DocumentDTO> doc = documentService.deleteDocument(id);
 
         if (doc.isPresent()) {
             return new ResponseEntity<>(doc.get(), HttpStatus.OK);
@@ -66,4 +71,15 @@ public class DocumentController {
         }
     }
 
+    @PostMapping("/{id}/notes")
+    public ResponseEntity<DocumentDTO> addNote(@PathVariable UUID id, @RequestParam("note") String note) {
+        Optional<DocumentDTO> doc = noteService.addNote(id, note);
+        if (doc.isPresent()) {
+            return new ResponseEntity<>(doc.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }
+

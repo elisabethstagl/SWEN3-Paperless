@@ -5,14 +5,15 @@ info:
 
 http:
   method: PUT
-  url: http://localhost:8081/api/documents
+  url: http://localhost:8081/api/documents/{{id}}
   body:
     type: multipart-form
     data:
       - name: file
         type: file
         value:
-          - /Users/maximilianjandl/Downloads/Minitest5_Research1.pdf
+          - /Users/maximilianjandl/Downloads/voucher.pdf
+        contentType: application/pdf
   auth: inherit
 
 settings:
@@ -20,3 +21,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

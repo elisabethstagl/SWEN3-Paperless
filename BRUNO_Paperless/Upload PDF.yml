@@ -1,7 +1,7 @@
 info:
   name: Upload PDF
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
@@ -15,8 +15,16 @@ http:
           - /Users/maximilianjandl/Downloads/Minitest5_Research1.pdf
   auth: inherit
 
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const data = res.getBody();
+        bru.setVar("id", data.id);
+
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

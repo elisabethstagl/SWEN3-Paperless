@@ -1,0 +1,20 @@
+info:
+  name: add Note
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:8081/api/documents/{{id}}/notes?note=lalala
+  params:
+    - name: note
+      value: lalala
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

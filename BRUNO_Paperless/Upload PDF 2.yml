@@ -1,0 +1,31 @@
+info:
+  name: Upload PDF 2
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://localhost:8081/api/documents
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /Users/maximilianjandl/Downloads/SWQM_2_Jandl.pdf
+        contentType: application/pdf
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const data = res.getBody();
+        bru.setVar("id", data.id);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

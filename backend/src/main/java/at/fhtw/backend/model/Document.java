@@ -1,14 +1,15 @@
 package at.fhtw.backend.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -16,6 +17,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "document")
 public class Document {
     @Id
     UUID id;
@@ -37,5 +39,9 @@ public class Document {
 
     @Column
     String summary;
+
+    @OneToMany(mappedBy = "document", orphanRemoval=true)
+    @JsonIgnoreProperties("document")
+    List<Note> notes;
 
 }
