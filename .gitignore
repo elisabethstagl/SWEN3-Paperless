@@ -35,4 +35,7 @@ build/
 ### ignores .env file ###
 **/.env
 
+### Node ###
+**/node_modules/
+
 .DS_Store
