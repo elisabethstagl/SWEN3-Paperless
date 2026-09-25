@@ -1,7 +1,7 @@
 package at.fhtw.backend.business;
 
 import at.fhtw.backend.model.Document;
-import at.fhtw.backend.model.DocumentDTO;
+import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.persistence.DocumentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package at.fhtw.backend;
 
-import at.fhtw.backend.model.DocumentDTO;
+import at.fhtw.backend.dto.DocumentDTO;
 import com.itextpdf.kernel.pdf.PdfDate;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfDocumentInfo;

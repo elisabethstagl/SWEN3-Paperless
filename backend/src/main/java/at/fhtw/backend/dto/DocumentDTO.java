@@ -1,13 +1,13 @@
-package at.fhtw.backend.model;
+package at.fhtw.backend.dto;
 
 
 
+import at.fhtw.backend.model.Note;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Data

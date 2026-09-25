@@ -22,7 +22,7 @@ public class Note {
 
     @ManyToOne
     @JoinColumn(name = "document_id")
-    @JsonIgnoreProperties("note")
+    @JsonIgnoreProperties("notes")
     Document document;
 
     String author;

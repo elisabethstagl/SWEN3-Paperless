@@ -3,8 +3,7 @@ package at.fhtw.backend.presentation;
 import at.fhtw.backend.business.DocumentService;
 import at.fhtw.backend.business.NoteService;
 import at.fhtw.backend.model.Document;
-import at.fhtw.backend.model.DocumentDTO;
-import org.apache.coyote.Response;
+import at.fhtw.backend.dto.DocumentDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +19,9 @@ import java.util.UUID;
 public class DocumentController {
 
     private final DocumentService documentService;
-    private final NoteService noteService;
 
     public DocumentController(DocumentService documentService, NoteService noteService) {
-        this.documentService = documentService;
-        this.noteService = noteService;
-    }
+        this.documentService = documentService;}
 
     @GetMapping
     public ResponseEntity<List<Document>> getAllDocuments() {
@@ -64,16 +60,6 @@ public class DocumentController {
     public ResponseEntity<DocumentDTO> deleteDocument(@PathVariable UUID id) {
         Optional<DocumentDTO> doc = documentService.deleteDocument(id);
 
-        if (doc.isPresent()) {
-            return new ResponseEntity<>(doc.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @PostMapping("/{id}/notes")
-    public ResponseEntity<DocumentDTO> addNote(@PathVariable UUID id, @RequestParam("note") String note) {
-        Optional<DocumentDTO> doc = noteService.addNote(id, note);
         if (doc.isPresent()) {
             return new ResponseEntity<>(doc.get(), HttpStatus.OK);
         } else {
