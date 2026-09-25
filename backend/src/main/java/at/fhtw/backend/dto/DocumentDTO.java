@@ -1,7 +1,5 @@
 package at.fhtw.backend.dto;
 
-
-
 import at.fhtw.backend.model.Note;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +25,6 @@ public class DocumentDTO {
 
     String summary;
 
-    List<Note> notes;
+    List<NoteDTO> notes;
 
 }

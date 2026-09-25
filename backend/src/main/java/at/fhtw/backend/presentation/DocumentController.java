@@ -24,14 +24,14 @@ public class DocumentController {
         this.documentService = documentService;}
 
     @GetMapping
-    public ResponseEntity<List<Document>> getAllDocuments() {
-        List<Document> documents = documentService.getAllDocuments();
+    public ResponseEntity<List<DocumentDTO>> getAllDocuments() {
+        List<DocumentDTO> documents = documentService.getAllDocuments();
         return ResponseEntity.ok(documents);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Document> getDocumentByID(@PathVariable UUID id) {
-        Optional<Document> created = documentService.getDocumentByID(id);
+    public ResponseEntity<DocumentDTO> getDocumentByID(@PathVariable UUID id) {
+        Optional<DocumentDTO> created = documentService.getDocumentByID(id);
         if (created.isPresent()) {
             return new ResponseEntity<>(created.get(), HttpStatus.OK);
         }
@@ -61,7 +61,7 @@ public class DocumentController {
         Optional<DocumentDTO> doc = documentService.deleteDocument(id);
 
         if (doc.isPresent()) {
-            return new ResponseEntity<>(doc.get(), HttpStatus.OK);
+            return new ResponseEntity<>(doc.get(), HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

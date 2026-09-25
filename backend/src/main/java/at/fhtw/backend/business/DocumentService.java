@@ -24,12 +24,27 @@ public class DocumentService {
         this.documentMapper = documentMapper;
     }
 
-    public List<Document> getAllDocuments() {
-        return documentRepository.findAll();
+    public List<DocumentDTO> getAllDocuments() {
+
+        List<Document> documents = documentRepository.findAll();
+        List<DocumentDTO> documentDTOs = new ArrayList<>();
+
+        for (Document document : documents) {
+            DocumentDTO documentDTO = documentMapper.toDTO(document);
+            documentDTOs.add(documentDTO);
+        }
+
+        return documentDTOs;
     }
 
-    public Optional<Document> getDocumentByID(UUID id) {
-        return documentRepository.findById(id);
+    public Optional<DocumentDTO> getDocumentByID(UUID id) {
+        Optional<Document> document = documentRepository.findById(id);
+
+        if (document.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(documentMapper.toDTO(document.get()));
     }
 
     public Optional<DocumentDTO> upload(MultipartFile file) throws IOException {
@@ -51,29 +66,33 @@ public class DocumentService {
 
 
     public Optional<DocumentDTO> deleteDocument(UUID id) {
-        Optional<Document> doc = getDocumentByID(id);
+
+        Optional<Document> doc = documentRepository.findById(id);
+
         if (doc.isEmpty()) {
             return Optional.empty();
         }
 
         documentRepository.delete(doc.get());
+
         return Optional.of(documentMapper.toDTO(doc.get()));
     }
 
     public Optional<DocumentDTO> updateDocument(UUID id, MultipartFile file) throws IOException {
-        Optional<Document> existing = getDocumentByID(id);
+
+        Optional<Document> existing = documentRepository.findById(id);
 
         if (existing.isEmpty()) {
             return Optional.empty();
         }
 
         DocumentDTO dto = PDFMetadataExtractor.extractMetadata(file);
+
         documentMapper.updateEntity(dto, existing.get());
 
         Document saved = documentRepository.save(existing.get());
 
         return Optional.of(documentMapper.toDTO(saved));
     }
-
 
 }

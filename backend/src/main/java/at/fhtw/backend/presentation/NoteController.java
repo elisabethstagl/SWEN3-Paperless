@@ -1,7 +1,7 @@
 package at.fhtw.backend.presentation;
 
 import at.fhtw.backend.business.NoteService;
-import at.fhtw.backend.model.Note;
+import at.fhtw.backend.dto.NoteDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +21,17 @@ public class NoteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Note>> getAllNotes(@PathVariable UUID documentId) {
+    public ResponseEntity<List<NoteDTO>> getAllNotes(@PathVariable UUID documentId) {
 
         return ResponseEntity.ok(noteService.getAllNotes(documentId));
     }
 
     @GetMapping("/{noteId}")
-    public ResponseEntity<Note> getNoteById(
+    public ResponseEntity<NoteDTO> getNoteById(
             @PathVariable UUID documentId,
             @PathVariable UUID noteId) {
 
-        Optional<Note> note =
+        Optional<NoteDTO> note =
                 noteService.getNoteById(documentId, noteId);
 
         if (note.isPresent()) {
@@ -42,9 +42,9 @@ public class NoteController {
     }
 
     @PostMapping
-    public ResponseEntity<Note> addNote(@PathVariable UUID documentId, @RequestBody Note note) {
+    public ResponseEntity<NoteDTO> addNote(@PathVariable UUID documentId, @RequestBody NoteDTO note) {
 
-        Optional<Note> createdNote = noteService.addNote(
+        Optional<NoteDTO> createdNote = noteService.addNote(
                 documentId,
                 note.getAuthor(),
                 note.getContent()
@@ -58,9 +58,9 @@ public class NoteController {
     }
 
     @PutMapping("/{noteId}")
-    public ResponseEntity<Note> updateNote(@PathVariable UUID documentId, @PathVariable UUID noteId, @RequestBody Note note) {
+    public ResponseEntity<NoteDTO> updateNote(@PathVariable UUID documentId, @PathVariable UUID noteId, @RequestBody NoteDTO note) {
 
-        Optional<Note> updatedNote = noteService.updateNote(
+        Optional<NoteDTO> updatedNote = noteService.updateNote(
                 documentId,
                 noteId,
                 note.getAuthor(),
