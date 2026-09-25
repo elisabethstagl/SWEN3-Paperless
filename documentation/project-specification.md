@@ -41,7 +41,9 @@ The backend structure shown below represents the current state of the project. A
 ```text
 backend/src/main/java/at/fhtw/backend/
 ├── business/               # Business logic / services
-├── controller/             # REST controllers
+├── dto/                    # DTOs
+├── mapper/                 # Mappers (using MapStruct)
+├── presentation/           # REST controllers
 ├── model/                  # JPA entities
 ├── persistence/            # Data Access Layer / repositories
 └── BackendApplication.java
@@ -117,14 +119,23 @@ Each note is stored as a separate entity and is associated with a specific docum
 
 ### Sprint 1
 
-| Task / Feature                                   | Time (h) |
-|--------------------------------------------------|:--------:|
-| Git Repository Setup and Spring Boot Integration |   0.5    |
-| Docker Setup                                     |   2.0    |
-| Small Changes                                    |   0.5    |
-| Additional Use Case                              |   1.0    |
-| Protocol / Project Specification                 |   1.0    |
-| **Subtotal**                                     | **0.0**  |
+| Task / Feature                                    | Time (h) |
+|---------------------------------------------------|:--------:|
+| Git Repository Setup and Spring Boot Integration  |   0.5    |
+| Docker Setup                                      |   2.0    |
+| Small Changes                                     |   0.5    |
+| Additional Use Case                               |   1.0    |
+| DTOs and Mappers, changes in Service + Controller |   3.0    |
+| Protocol / Project Specification                  |   2.0    |
+| **Subtotal**                                      | **9.0**  |
+
+### Sprint 2
+
+| Task / Feature                   | Time (h) |
+|----------------------------------|:--------:|
+| Frontend Setup + Styling         |   3.0    |
+| Protocol / Project Specification |   0.0    |
+| **Subtotal**                     | **0.0**  |
 
 ## Maximilian Jandl
 
