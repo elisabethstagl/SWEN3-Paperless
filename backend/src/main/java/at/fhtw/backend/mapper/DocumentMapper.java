@@ -10,6 +10,7 @@ public interface DocumentMapper {
     DocumentDTO toDTO(Document doc);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "notes", ignore = true)
     void updateEntity(DocumentDTO dto, @MappingTarget Document doc);
 
 }

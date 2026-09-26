@@ -44,14 +44,13 @@ public class NoteController {
     @PostMapping
     public ResponseEntity<NoteDTO> addNote(@PathVariable UUID documentId, @RequestBody NoteDTO note) {
 
-        Optional<NoteDTO> createdNote = noteService.addNote(
-                documentId,
-                note.getAuthor(),
-                note.getContent()
-        );
+        Optional<NoteDTO> createdNote = noteService.addNote(documentId, note);
 
         if (createdNote.isPresent()) {
-            return new ResponseEntity<>(createdNote.get(), HttpStatus.CREATED);
+            return new ResponseEntity<>(
+                    createdNote.get(),
+                    HttpStatus.CREATED
+            );
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -60,12 +59,7 @@ public class NoteController {
     @PutMapping("/{noteId}")
     public ResponseEntity<NoteDTO> updateNote(@PathVariable UUID documentId, @PathVariable UUID noteId, @RequestBody NoteDTO note) {
 
-        Optional<NoteDTO> updatedNote = noteService.updateNote(
-                documentId,
-                noteId,
-                note.getAuthor(),
-                note.getContent()
-        );
+        Optional<NoteDTO> updatedNote = noteService.updateNote(documentId, noteId, note);
 
         if (updatedNote.isPresent()) {
             return new ResponseEntity<>(updatedNote.get(), HttpStatus.OK);

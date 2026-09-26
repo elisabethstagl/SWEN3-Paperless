@@ -1,5 +1,6 @@
 package at.fhtw.backend.business;
 
+import at.fhtw.backend.mapper.DocumentMapper;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.persistence.DocumentRepository;
@@ -13,8 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,6 +22,9 @@ class DocumentServiceTest {
 
     @Mock
     private DocumentRepository documentRepository;
+
+    @Mock
+    private DocumentMapper documentMapper;
 
     @InjectMocks
     private DocumentService documentService;
@@ -40,19 +43,37 @@ class DocumentServiceTest {
                 .pages(10)
                 .build();
 
-        List<Document> documents = List.of(document1, document2);
+        DocumentDTO dto1 = DocumentDTO.builder()
+                .id(document1.getId())
+                .filename("first.pdf")
+                .pages(5)
+                .build();
 
-        when(documentRepository.findAll()).thenReturn(documents);
+        DocumentDTO dto2 = DocumentDTO.builder()
+                .id(document2.getId())
+                .filename("second.pdf")
+                .pages(10)
+                .build();
 
-        List<Document> result = documentService.getAllDocuments();
+        when(documentRepository.findAll())
+                .thenReturn(List.of(document1, document2));
+
+        when(documentMapper.toDTO(document1)).thenReturn(dto1);
+        when(documentMapper.toDTO(document2)).thenReturn(dto2);
+
+        List<DocumentDTO> result = documentService.getAllDocuments();
 
         assertEquals(2, result.size());
         assertEquals("first.pdf", result.get(0).getFilename());
         assertEquals("second.pdf", result.get(1).getFilename());
+
+        verify(documentRepository).findAll();
+        verify(documentMapper).toDTO(document1);
+        verify(documentMapper).toDTO(document2);
     }
 
     @Test
-    void getDocumentById_existingDocument_returnsDocument() {
+    void getDocumentById_existingDocument_returnsDocumentDTO() {
         UUID id = UUID.randomUUID();
 
         Document document = Document.builder()
@@ -61,29 +82,42 @@ class DocumentServiceTest {
                 .pages(3)
                 .build();
 
+        DocumentDTO dto = DocumentDTO.builder()
+                .id(id)
+                .filename("test.pdf")
+                .pages(3)
+                .build();
+
         when(documentRepository.findById(id))
                 .thenReturn(Optional.of(document));
 
-        Optional<Document> result = documentService.getDocumentByID(id);
+        when(documentMapper.toDTO(document))
+                .thenReturn(dto);
+
+        Optional<DocumentDTO> result = documentService.getDocumentByID(id);
 
         assertTrue(result.isPresent());
         assertEquals(id, result.get().getId());
         assertEquals("test.pdf", result.get().getFilename());
+        assertEquals(3, result.get().getPages());
+
+        verify(documentRepository).findById(id);
+        verify(documentMapper).toDTO(document);
     }
 
     @Test
     void getDocumentById_unknownDocument_returnsEmpty() {
-        // Arrange
         UUID id = UUID.randomUUID();
 
         when(documentRepository.findById(id))
                 .thenReturn(Optional.empty());
 
-        // Act
-        Optional<Document> result = documentService.getDocumentByID(id);
+        Optional<DocumentDTO> result = documentService.getDocumentByID(id);
 
-        // Assert
         assertTrue(result.isEmpty());
+
+        verify(documentRepository).findById(id);
+        verify(documentMapper, never()).toDTO(any());
     }
 
     @Test
@@ -98,12 +132,11 @@ class DocumentServiceTest {
         when(documentRepository.findById(id))
                 .thenReturn(Optional.of(document));
 
-        Optional<DocumentDTO> result = documentService.deleteDocument(id);
+        boolean result = documentService.deleteDocument(id);
 
-        assertTrue(result.isPresent());
-        assertEquals(document, result.get());
+        assertTrue(result);
 
-        //verify - was the method actually called from the service (documentRepository.delete(document))
+        verify(documentRepository).findById(id);
         verify(documentRepository).delete(document);
     }
 
@@ -114,9 +147,11 @@ class DocumentServiceTest {
         when(documentRepository.findById(id))
                 .thenReturn(Optional.empty());
 
-        Optional<DocumentDTO> result = documentService.deleteDocument(id);
+        boolean result = documentService.deleteDocument(id);
 
-        assertTrue(result.isEmpty());
+        assertFalse(result);
+
+        verify(documentRepository).findById(id);
         verify(documentRepository, never()).delete(any());
     }
 }

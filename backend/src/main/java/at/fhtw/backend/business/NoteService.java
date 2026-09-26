@@ -59,21 +59,19 @@ public class NoteService {
 
     public Optional<NoteDTO> addNote(
             UUID documentId,
-            String author,
-            String content) {
+            NoteDTO noteDTO) {
 
-        Optional<Document> doc = documentRepository.findById(documentId);
+        Optional<Document> doc =
+                documentRepository.findById(documentId);
 
         if (doc.isEmpty()) {
             return Optional.empty();
         }
 
-        Note newNote = Note.builder()
-                .id(UUID.randomUUID())
-                .author(author)
-                .content(content)
-                .document(doc.get())
-                .build();
+        Note newNote = noteMapper.toEntity(noteDTO);
+
+        newNote.setId(UUID.randomUUID());
+        newNote.setDocument(doc.get());
 
         Note savedNote = noteRepository.save(newNote);
 
@@ -83,8 +81,7 @@ public class NoteService {
     public Optional<NoteDTO> updateNote(
             UUID documentId,
             UUID noteId,
-            String author,
-            String content) {
+            NoteDTO noteDTO) {
 
         Optional<Note> note = noteRepository.findById(noteId);
 
@@ -96,10 +93,11 @@ public class NoteService {
             return Optional.empty();
         }
 
-        note.get().setAuthor(author);
-        note.get().setContent(content);
+        noteMapper.updateEntity(noteDTO, note.get());
 
-        return Optional.of(noteMapper.toDTO(note.get()));
+        Note savedNote = noteRepository.save(note.get());
+
+        return Optional.of(noteMapper.toDTO(savedNote));
     }
 
     public boolean deleteNote(UUID documentId, UUID noteId) {

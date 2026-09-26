@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 public interface NoteMapper {
 
     @Mapping(target = "document", ignore = true)
+    @Mapping(target = "id", ignore = true)
     Note toEntity(NoteDTO noteDTO);
 
     NoteDTO toDTO(Note note);
@@ -17,5 +18,4 @@ public interface NoteMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "document", ignore = true)
     void updateEntity(NoteDTO noteDTO, @MappingTarget Note note);
-
 }
