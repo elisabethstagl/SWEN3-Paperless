@@ -73,6 +73,7 @@ public class NoteController {
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
     @DeleteMapping("/{noteId}")
     public ResponseEntity<Void> deleteNote(@PathVariable UUID documentId, @PathVariable UUID noteId) {
 

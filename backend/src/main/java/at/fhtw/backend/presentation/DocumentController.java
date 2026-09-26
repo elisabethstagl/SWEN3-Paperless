@@ -21,7 +21,8 @@ public class DocumentController {
     private final DocumentService documentService;
 
     public DocumentController(DocumentService documentService, NoteService noteService) {
-        this.documentService = documentService;}
+        this.documentService = documentService;
+    }
 
     @GetMapping
     public ResponseEntity<List<DocumentDTO>> getAllDocuments() {
@@ -57,11 +58,12 @@ public class DocumentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DocumentDTO> deleteDocument(@PathVariable UUID id) {
-        Optional<DocumentDTO> doc = documentService.deleteDocument(id);
+    public ResponseEntity<Void> deleteDocument(@PathVariable UUID id) {
 
-        if (doc.isPresent()) {
-            return new ResponseEntity<>(doc.get(), HttpStatus.NO_CONTENT);
+        boolean deleted = documentService.deleteDocument(id);
+
+        if (deleted) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

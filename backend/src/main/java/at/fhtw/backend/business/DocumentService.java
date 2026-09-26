@@ -4,6 +4,7 @@ import at.fhtw.backend.PDFMetadataExtractor;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.mapper.DocumentMapper;
+import at.fhtw.backend.model.Note;
 import at.fhtw.backend.persistence.DocumentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -64,18 +65,15 @@ public class DocumentService {
         return Optional.of(documentMapper.toDTO(document));
     }
 
-
-    public Optional<DocumentDTO> deleteDocument(UUID id) {
-
+    public boolean deleteDocument(UUID id) {
         Optional<Document> doc = documentRepository.findById(id);
 
         if (doc.isEmpty()) {
-            return Optional.empty();
+            return false;
         }
 
         documentRepository.delete(doc.get());
-
-        return Optional.of(documentMapper.toDTO(doc.get()));
+        return true;
     }
 
     public Optional<DocumentDTO> updateDocument(UUID id, MultipartFile file) throws IOException {
