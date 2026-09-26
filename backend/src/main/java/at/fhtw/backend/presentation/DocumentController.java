@@ -28,16 +28,16 @@ public class DocumentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Document>> getAllDocuments() {
-        List<Document> documents = documentService.getAllDocuments();
+    public ResponseEntity<List<DocumentDTO>> getAllDocuments() {
+        List<DocumentDTO> documents = documentService.getAllDocuments();
         return ResponseEntity.ok(documents);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Document> getDocumentByID(@PathVariable UUID id) {
-        Optional<Document> created = documentService.getDocumentByID(id);
+    public ResponseEntity<DocumentDTO> getDocumentByID(@PathVariable UUID id) {
+        Optional<DocumentDTO> created = documentService.getDocumentByID(id);
         if (created.isPresent()) {
-            return new ResponseEntity<>(created.get(), HttpStatus.OK);
+            return ResponseEntity.ok(created);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -61,7 +61,7 @@ public class DocumentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DocumentDTO> deleteDocument(@PathVariable UUID id) {
+    public ResponseEntity deleteDocument(@PathVariable UUID id) {
         Optional<DocumentDTO> doc = documentService.deleteDocument(id);
 
         if (doc.isPresent()) {
@@ -72,7 +72,7 @@ public class DocumentController {
     }
 
     @PostMapping("/{id}/notes")
-    public ResponseEntity<DocumentDTO> addNote(@PathVariable UUID id, @RequestParam("note") String note) {
+    public ResponseEntity<> addNote(@PathVariable UUID id, @RequestParam("note") String note) {
         Optional<DocumentDTO> doc = noteService.addNote(id, note);
         if (doc.isPresent()) {
             return new ResponseEntity<>(doc.get(), HttpStatus.OK);

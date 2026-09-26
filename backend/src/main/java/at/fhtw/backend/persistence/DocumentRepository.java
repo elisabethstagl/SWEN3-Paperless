@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, UUID> {
 
+    Document getDocumentById(UUID id);
 }

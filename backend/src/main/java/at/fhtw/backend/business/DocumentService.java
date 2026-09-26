@@ -24,12 +24,12 @@ public class DocumentService {
         this.documentMapper = documentMapper;
     }
 
-    public List<Document> getAllDocuments() {
-        return documentRepository.findAll();
+    public List<DocumentDTO> getAllDocuments() {
+        return documentRepository.findAll().stream().map(doc -> documentMapper.toDTO(doc)).toList();
     }
 
-    public Optional<Document> getDocumentByID(UUID id) {
-        return documentRepository.findById(id);
+    public Optional<DocumentDTO> getDocumentByID(UUID id) {
+        return Optional.of(documentMapper.toDTO(documentRepository.getDocumentById((id))));
     }
 
     public Optional<DocumentDTO> upload(MultipartFile file) throws IOException {
@@ -51,14 +51,12 @@ public class DocumentService {
     }
 
 
-    public Optional<DocumentDTO> deleteDocument(UUID id) {
-        Optional<Document> doc = getDocumentByID(id);
-        if (doc.isEmpty()) {
-            return Optional.empty();
-        }
-
-        documentRepository.delete(doc.get());
-        return Optional.of(documentMapper.toDTO(doc.get()));
+    public void deleteDocument(UUID id) {
+/*
+        Document doc = documentRepository.getDocumentById(id)
+*/
+        Document doc = documentRepository.findById(id).orElseThrow(() -> new Exception("Document not found"));
+        documentRepository.delete(doc);
     }
 
     public Optional<DocumentDTO> updateDocument(UUID id, MultipartFile file) throws IOException {
