@@ -1,0 +1,128 @@
+.add-button {
+  position: absolute;
+  right: 50px;
+  bottom: 110px
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+.title {
+  font-family: "DM Serif Display", serif;
+  color: #4a2f27;
+}
+
+.subtitle {
+  font-family: "DM Sans", sans-serif;
+  color: #8a6f66;
+}
+
+.title,
+.subtitle {
+  margin: 0;
+}
+
+
+.books-pile-img {
+  width: 150px;
+  height: 150px;
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+}
+
+.books-img-1 {
+  width: 400px;
+  height: 400px;
+  position: absolute;
+  right: 400px;
+  top: -114px;
+}
+
+.books-img-2 {
+  width: 250px;
+  height: 250px;
+  position: absolute;
+  right: 150px;
+  top: -35px;
+}
+
+.plant-img {
+  width: 300px;
+  height: 300px;
+  position: absolute;
+  right: -20px;
+  top: -3px;
+}
+
+/*-----------TABLET-----------*/
+
+@media (max-width: 1024px) {
+
+  .books-img-1 {
+    display: none;
+  }
+
+  .books-img-2 {
+    width: 190px;
+    height: 190px;
+    right: 120px;
+    top: 5px;
+  }
+
+  .plant-img {
+    width: 220px;
+    height: 220px;
+    right: -15px;
+    top: 35px;
+  }
+
+  .books-pile-img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .add-button {
+    right: 35px;
+    bottom: 90px;
+  }
+}
+
+/*-----------MOBILE-----------*/
+
+@media (max-width: 600px) {
+
+  .header-text {
+    margin-top: 8px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .books-img-1,
+  .books-img-2,
+  .plant-img {
+    display: none;
+  }
+
+  .books-pile-img {
+    width: 100px;
+    height: 100px;
+    right: 5px;
+  }
+
+  .add-button {
+    right: 25px;
+    bottom: 75px;
+  }
+}
