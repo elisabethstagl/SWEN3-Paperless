@@ -77,12 +77,6 @@
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
 
-		<!-- Loads variables from a local .env file into the Spring Environment -->
-		<dependency>
-			<groupId>me.paulschwarz</groupId>
-			<artifactId>springboot4-dotenv</artifactId>
-			<optional>true</optional>
-		</dependency>
 
 		<dependency>
 			<groupId>org.postgresql</groupId>

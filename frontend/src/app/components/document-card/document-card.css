@@ -1,0 +1,13 @@
+.document-card {
+  width: 100%;
+  max-width: 560px;
+  box-sizing: border-box;
+  padding: 20px 20px 12px;
+}
+
+.card-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}

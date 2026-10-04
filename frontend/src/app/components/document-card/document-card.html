@@ -1,0 +1,12 @@
+<mat-card class="document-card" appearance="outlined">
+    {{document().summary}}
+    <div class="card-header">
+        <mat-icon class="doc-icon">description</mat-icon>
+        <div class="card-heading">
+            <h2 class="doc-filename">{{ document().filename }}</h2>
+            <p class="doc-creator">{{ document().creator }}</p>
+        </div>
+    </div>
+    <button matButton="outlined" (click)="delete.emit(document().id)">Delete</button>
+    <button matButton="outlined">Download</button>
+</mat-card>

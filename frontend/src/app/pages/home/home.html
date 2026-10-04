@@ -13,6 +13,10 @@
 
 <mat-divider></mat-divider>
 
-<button class="add-button" matFab aria-label="Add document">
+<app-document-container></app-document-container>
+
+<input #fileInput type="file" hidden multiple accept="application/pdf" (change)="onFilesSelected(fileInput)"> <!-- # allows fileInput to be referenced--> 
+
+<button class="add-button" matFab aria-label="Add document" (click)="fileInput.click()">
   <mat-icon>add</mat-icon>
 </button>
