@@ -14,6 +14,5 @@ import java.util.UUID;
 public class NoteDTO {
 
     UUID id;
-    String author;
     String content;
 }

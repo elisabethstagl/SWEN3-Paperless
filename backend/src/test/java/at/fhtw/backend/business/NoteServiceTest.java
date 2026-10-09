@@ -41,25 +41,21 @@ class NoteServiceTest {
 
         Note note1 = Note.builder()
                 .id(UUID.randomUUID())
-                .author("Author 1")
                 .content("Content 1")
                 .build();
 
         Note note2 = Note.builder()
                 .id(UUID.randomUUID())
-                .author("Author 2")
                 .content("Content 2")
                 .build();
 
         NoteDTO dto1 = NoteDTO.builder()
                 .id(note1.getId())
-                .author("Author 1")
                 .content("Content 1")
                 .build();
 
         NoteDTO dto2 = NoteDTO.builder()
                 .id(note2.getId())
-                .author("Author 2")
                 .content("Content 2")
                 .build();
 
@@ -92,14 +88,12 @@ class NoteServiceTest {
 
         Note note = Note.builder()
                 .id(noteId)
-                .author("Test Author")
                 .content("Test Content")
                 .document(document)
                 .build();
 
         NoteDTO dto = NoteDTO.builder()
                 .id(noteId)
-                .author("Test Author")
                 .content("Test Content")
                 .build();
 
@@ -114,7 +108,6 @@ class NoteServiceTest {
 
         assertTrue(result.isPresent());
         assertEquals(noteId, result.get().getId());
-        assertEquals("Test Author", result.get().getAuthor());
         assertEquals("Test Content", result.get().getContent());
 
         verify(noteRepository).findById(noteId);
@@ -175,17 +168,14 @@ class NoteServiceTest {
                 .build();
 
         NoteDTO inputDTO = NoteDTO.builder()
-                .author("Test Author")
                 .content("Test Content")
                 .build();
 
         Note newNote = Note.builder()
-                .author("Test Author")
                 .content("Test Content")
                 .build();
 
         NoteDTO resultDTO = NoteDTO.builder()
-                .author("Test Author")
                 .content("Test Content")
                 .build();
 
@@ -205,7 +195,6 @@ class NoteServiceTest {
                 noteService.addNote(documentId, inputDTO);
 
         assertTrue(result.isPresent());
-        assertEquals("Test Author", result.get().getAuthor());
         assertEquals("Test Content", result.get().getContent());
 
         assertNotNull(newNote.getId());
@@ -222,7 +211,6 @@ class NoteServiceTest {
         UUID documentId = UUID.randomUUID();
 
         NoteDTO inputDTO = NoteDTO.builder()
-                .author("Test Author")
                 .content("Test Content")
                 .build();
 
@@ -252,19 +240,16 @@ class NoteServiceTest {
 
         Note note = Note.builder()
                 .id(noteId)
-                .author("Old Author")
                 .content("Old Content")
                 .document(document)
                 .build();
 
         NoteDTO updateDTO = NoteDTO.builder()
-                .author("New Author")
                 .content("New Content")
                 .build();
 
         NoteDTO resultDTO = NoteDTO.builder()
                 .id(noteId)
-                .author("New Author")
                 .content("New Content")
                 .build();
 
@@ -287,7 +272,6 @@ class NoteServiceTest {
         assertTrue(result.isPresent());
 
         assertEquals(noteId, result.get().getId());
-        assertEquals("New Author", result.get().getAuthor());
         assertEquals("New Content", result.get().getContent());
 
         verify(noteRepository).findById(noteId);

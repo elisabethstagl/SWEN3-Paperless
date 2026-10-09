@@ -23,7 +23,6 @@ export class DocumentApiService {
     formData.append('file', file)
 
     return this.http.post<PaperlessDocument>(this.baseUrl, formData)
-
   }
 
 

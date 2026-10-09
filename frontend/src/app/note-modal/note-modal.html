@@ -1,0 +1,22 @@
+<h2>Notes – {{ document.filename }}</h2>
+
+<ul>
+    @for (note of notes(); track note.id) {
+        <li>
+            @if (editingId() === note.id) {
+                <input [(ngModel)]="editContent">
+                <button (click)="saveEdit(note)">Speichern</button>
+                <button (click)="cancelEdit()">Abbrechen</button>
+            } @else {
+                {{ note.content }}
+                <button (click)="startEdit(note)">Bearbeiten</button>
+                <button (click)="delete(note)">Löschen</button>
+            }
+        </li>
+    } @empty {
+        <li>Keine Notes.</li>
+    }
+</ul>
+
+<input [(ngModel)]="newContent">
+<button (click)="add()">Hinzufügen</button>

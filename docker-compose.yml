@@ -34,6 +34,7 @@ services:
       - postgres
     profiles:
       - full
+      - backend
   frontend:
     build: ./frontend
     volumes:

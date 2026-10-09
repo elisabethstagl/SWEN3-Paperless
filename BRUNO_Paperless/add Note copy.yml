@@ -1,0 +1,23 @@
+info:
+  name: add Note copy
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: http://localhost:8081/api/documents/{{id}}/notes
+  body:
+    type: json
+    data: |-
+      {
+        "author": "asdasd",
+        "content": "asdsad"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

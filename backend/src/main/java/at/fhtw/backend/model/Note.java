@@ -25,6 +25,5 @@ public class Note {
     @JsonIgnoreProperties("notes")
     Document document;
 
-    String author;
     String content;
 }
