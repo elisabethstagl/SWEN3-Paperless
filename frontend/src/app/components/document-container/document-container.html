@@ -1,8 +1,10 @@
-@for (doc of documentStore.documents(); track doc.id) {
-  <app-document-card
-    [document]="doc"
-    (delete)="documentStore.delete(doc.id)"
-  />
-} @empty {
-  <p>There are no items.</p>
-}
+<div class="document-container">
+  @for (doc of documentStore.documents(); track doc.id) {
+    <app-document-card
+      [document]="doc"
+      (delete)="documentStore.delete(doc.id)"
+    />
+  } @empty {
+    <p>There are no items.</p>
+  }
+</div>
