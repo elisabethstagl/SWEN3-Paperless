@@ -1,18 +1,27 @@
-<div class="header-text">
-  <h1 class="title">Folium</h1>
-  <h3 class="subtitle">A home for all your documents</h3>
+<div class="page">
+  <div class="header-section">
+    <div class="header-text">
+      <h1 class="title">Folium</h1>
+      <h3 class="subtitle">A home for all your documents</h3>
+    </div>
+
+    <img class="books-img-1" src="assets/images/bookshelf.svg" alt="bookshelf">
+
+    <img class="books-img-2" src="assets/images/bookshelf-1.svg" alt="bookshelf-1">
+
+    <img class="plant-img" src="assets/images/plant-3.svg" alt="plant">
+  </div>
+
+  <img class="books-pile-img" src="assets/images/books-pile.svg" alt="book-pile">
+
+  <mat-divider></mat-divider>
+
+  <app-document-container></app-document-container>
+
+  <input #fileInput type="file" hidden multiple accept="application/pdf"
+         (change)="onFilesSelected(fileInput)">
+
+  <button class="add-button" matFab aria-label="Add document" (click)="fileInput.click()">
+    <mat-icon>add</mat-icon>
+  </button>
 </div>
-
-<img class="books-img-1" src="assets/images/bookshelf.svg" alt="bookshelf">
-
-<img class="books-img-2" src="assets/images/bookshelf-1.svg" alt="bookshelf-1">
-
-<img class="plant-img" src="assets/images/plant-3.svg" alt="plant">
-
-<img class="books-pile-img" src="assets/images/books-pile.svg" alt="book-pile">
-
-<mat-divider></mat-divider>
-
-<button class="add-button" matFab aria-label="Add document">
-  <mat-icon>add</mat-icon>
-</button>

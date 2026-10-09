@@ -1,0 +1,22 @@
+<mat-card class="document-card" appearance="outlined">
+  {{ document().summary }}
+  <div class="card-header">
+    <div class="icon-badge">
+      <mat-icon class="doc-icon">description</mat-icon>
+    </div>
+    <div class="card-heading">
+      <h2 class="doc-filename">{{ document().filename }}</h2>
+      <p class="doc-creator">{{ document().creator }}</p>
+    </div>
+  </div>
+  <div class="button-container">
+    <button class="delete-button" matMiniFab aria-label="Delete document"
+            matTooltip="Delete" (click)="delete.emit(document().id)">
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button class="download-button" matMiniFab aria-label="Download document"
+            matTooltip="Download">
+      <mat-icon>download</mat-icon>
+    </button>
+  </div>
+</mat-card>

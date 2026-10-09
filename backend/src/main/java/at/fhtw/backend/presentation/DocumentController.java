@@ -1,8 +1,6 @@
 package at.fhtw.backend.presentation;
 
 import at.fhtw.backend.business.DocumentService;
-import at.fhtw.backend.business.NoteService;
-import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +18,7 @@ public class DocumentController {
 
     private final DocumentService documentService;
 
-    public DocumentController(DocumentService documentService, NoteService noteService) {
+    public DocumentController(DocumentService documentService) {
         this.documentService = documentService;
     }
 
