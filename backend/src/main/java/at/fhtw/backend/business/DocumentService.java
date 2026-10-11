@@ -7,6 +7,9 @@ import at.fhtw.backend.mapper.DocumentMapper;
 import at.fhtw.backend.model.Note;
 import at.fhtw.backend.persistence.DocumentRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,10 +22,12 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final DocumentMapper documentMapper;
+    private final Validator validator;
 
-    public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper) {
+    public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper, Validator validator) {
         this.documentRepository = documentRepository;
         this.documentMapper = documentMapper;
+        this.validator = validator;
     }
 
     public List<DocumentDTO> getAllDocuments() {
@@ -50,17 +55,24 @@ public class DocumentService {
 
     public Optional<DocumentDTO> upload(MultipartFile file) throws IOException {
 
+        validateFile(file);
+
         UUID id = UUID.randomUUID();
 
         DocumentDTO dto = PDFMetadataExtractor.extractMetadata(file);
+
+        // Validate DocumentDTO with Jakarta Bean Validation; checks the object against all validation annotations (in Document DTO)
+        Set<ConstraintViolation<DocumentDTO>> violations = validator.validate(dto);
+
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
 
         Document document = documentMapper.toEntity(dto);
 
         document.setId(id);
 
-
         document = documentRepository.save(document);
-
 
         return Optional.of(documentMapper.toDTO(document));
     }
@@ -84,13 +96,33 @@ public class DocumentService {
             return Optional.empty();
         }
 
+        validateFile(file);
+
         DocumentDTO dto = PDFMetadataExtractor.extractMetadata(file);
+
+        Set<ConstraintViolation<DocumentDTO>> violations = validator.validate(dto);
+
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
 
         documentMapper.updateEntity(dto, existing.get());
 
         Document saved = documentRepository.save(existing.get());
 
         return Optional.of(documentMapper.toDTO(saved));
+    }
+
+    // HELPER
+
+    private void validateFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File must not be empty");
+        }
+
+        if (!"application/pdf".equals(file.getContentType())) {
+            throw new IllegalArgumentException("Only PDF files are allowed");
+        }
     }
 
 }
