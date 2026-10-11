@@ -6,7 +6,8 @@
     </div>
 
     <div class="card-heading">
-      <h2 class="doc-filename">{{ document().filename }}</h2>
+      <h2 class="doc-filename" [matTooltip]="document().filename"
+          matTooltipPosition="above">{{ document().filename }}</h2>
       <p class="doc-creator">{{ document().creator }}</p>
     </div>
   </div>
@@ -15,11 +16,14 @@
             matTooltip="Delete" (click)="delete.emit(document().id)">
       <mat-icon>delete</mat-icon>
     </button>
+    <button class="add-note-button" matMiniFab aria-label="Add note"
+            matTooltip="Add Note" (click)="openNoteModal()">
+      <mat-icon>note_add</mat-icon>
+    </button>
     <button class="download-button" matMiniFab aria-label="Download document"
             matTooltip="Download">
       <mat-icon>download</mat-icon>
     </button>
-    <button matButton="outlined" (click)="openNoteModal()">Note hinzufügen</button>
   </div>
 </mat-card>
 

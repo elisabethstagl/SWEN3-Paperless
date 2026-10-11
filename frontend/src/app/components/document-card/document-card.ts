@@ -3,7 +3,7 @@ import { PaperlessDocument } from '../../models/paperless-document';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { NoteModal } from '../../note-modal/note-modal';
+import { NoteModal } from '../note-modal/note-modal';
 import { MatDialog } from '@angular/material/dialog';
 
 import {MatTooltip} from '@angular/material/tooltip';
