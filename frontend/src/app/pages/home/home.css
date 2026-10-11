@@ -76,6 +76,8 @@ app-document-container {
   position: absolute;
   right: 400px;
   top: -174px;
+  pointer-events: none;
+  user-select: none;
 }
 
 .books-img-2 {
@@ -84,6 +86,8 @@ app-document-container {
   position: absolute;
   right: 150px;
   top: -95px;
+  pointer-events: none;
+  user-select: none;
 }
 
 .plant-img {
@@ -93,6 +97,8 @@ app-document-container {
   right: -20px;
   top: -63px;
   z-index: 100;
+  pointer-events: none;
+  user-select: none;
 }
 
 

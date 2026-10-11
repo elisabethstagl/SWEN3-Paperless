@@ -1,16 +1,19 @@
 .document-card {
+  position: relative;
+  z-index: 1;
+
   width: 100%;
   max-width: 560px;
   box-sizing: border-box;
   padding: 20px 20px 12px;
-  border-color: #ead9d4;
+  border: 1px solid #ead9d4;
   border-radius: 20px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(74, 47, 39, 0.08);
-    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 6px 18px rgba(74, 47, 39, 0.12);
+    border-color: #d8b8ad;
   }
 }
 
@@ -68,11 +71,17 @@
 }
 
 .delete-button,
-.download-button {
+.download-button,
+.add-note-button {
   box-shadow: none;
 }
 
 .download-button {
   background-color: #f6e3de;
-  color: #8a4b3c;;
+  color: #8a4b3c;
+}
+
+.add-note-button {
+  background-color: #dce8d8;
+  color: #607d65;
 }
