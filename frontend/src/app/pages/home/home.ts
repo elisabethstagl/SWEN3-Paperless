@@ -21,9 +21,6 @@ export class Home {
   readonly noteApiService = inject(NoteApiService)
   
   constructor() {
-    this.noteApiService.addNote("3bee76b4-5a7b-4ae5-a9a0-ac3188a2207d", "content").subscribe(response => {
-      console.log(response)
-    })
   }
 
   onDragOver(event: DragEvent) {
