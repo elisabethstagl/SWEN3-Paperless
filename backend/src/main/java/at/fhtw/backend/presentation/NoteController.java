@@ -2,6 +2,7 @@ package at.fhtw.backend.presentation;
 
 import at.fhtw.backend.business.NoteService;
 import at.fhtw.backend.dto.NoteDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,7 @@ public class NoteController {
     }
 
     @PostMapping
-    public ResponseEntity<NoteDTO> addNote(@PathVariable UUID documentId, @RequestBody NoteDTO note) {
+    public ResponseEntity<NoteDTO> addNote(@PathVariable UUID documentId, @Valid @RequestBody NoteDTO note) {
 
         Optional<NoteDTO> createdNote = noteService.addNote(documentId, note);
 
@@ -57,7 +58,7 @@ public class NoteController {
     }
 
     @PutMapping("/{noteId}")
-    public ResponseEntity<NoteDTO> updateNote(@PathVariable UUID documentId, @PathVariable UUID noteId, @RequestBody NoteDTO note) {
+    public ResponseEntity<NoteDTO> updateNote(@PathVariable UUID documentId, @PathVariable UUID noteId, @Valid @RequestBody NoteDTO note) {
 
         Optional<NoteDTO> updatedNote = noteService.updateNote(documentId, noteId, note);
 

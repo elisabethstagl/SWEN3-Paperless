@@ -1,0 +1,23 @@
+/* You can add global styles to this file, and also import other style files */
+main {
+  padding: 60px 80px;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+}
+
+/*-----------MOBILE-----------*/
+
+@media (max-width: 600px) {
+
+  main {
+    padding: 30px 20px;
+  }
+}

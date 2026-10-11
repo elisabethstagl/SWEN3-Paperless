@@ -1,0 +1,144 @@
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 8px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #4a2f27;
+}
+
+.close-button {
+  flex-shrink: 0;
+  background-color: #f6e3de;
+  color: #8a4b3c;
+  box-shadow: none;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.note-item {
+  padding: 16px;
+  border: 1px solid #ead9d4;
+  border-radius: 14px;
+  background-color: #fffaf8;
+}
+
+.note-content {
+  margin: 0 0 12px;
+  color: #4a2f27;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note-item mat-form-field {
+  width: 100%;
+}
+
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-note-button,
+.delete-note-button {
+  box-shadow: none;
+}
+
+.edit-note-button {
+  background-color: #dce8d8;
+  color: #607d65;
+}
+
+.edit-note-button:hover {
+  background-color: #cbdcc7;
+}
+
+.delete-note-button {
+  background-color: #f9dfe4;
+  color: #9b1748;
+}
+
+.delete-note-button:hover {
+  background-color: #f3cbd4;
+}
+
+.save-note-button {
+  background-color: #dce8d8;
+  color: #607d65;
+  border-radius: 12px;
+  padding: 8px 16px;
+}
+
+.save-note-button:hover:not(:disabled) {
+  background-color: #cbdcc7;
+}
+
+.cancel-note-button {
+  background-color: #f6e3de;
+  color: #8a4b3c;
+  border-radius: 12px;
+  padding: 8px 16px;
+}
+
+.cancel-note-button:hover {
+  background-color: #ead0c7;
+}
+
+.add-note-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 20px;
+}
+
+.add-note-section mat-form-field {
+  width: 100%;
+}
+
+.add-note-button {
+  align-self: flex-end;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.mat-mdc-unelevated-button:not(:disabled) {
+  background-color: #f6e3de;
+  color: #8a4b3c;
+  font-family: "DM Sans", sans-serif;
+}
+
+.add-note-button:hover:not(:disabled) {
+  background-color: #ead0c7;
+}
+
+.add-note-button:disabled,
+.save-note-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.empty-message {
+  color: #8a6f66;
+  text-align: center;
+  padding: 24px;
+}
+
+.validation-error {
+  color: #c62828;
+}

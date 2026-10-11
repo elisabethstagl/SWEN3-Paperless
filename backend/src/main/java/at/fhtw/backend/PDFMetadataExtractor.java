@@ -12,26 +12,32 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class PDFMetadataExtractor {
+
     public static DocumentDTO extractMetadata(MultipartFile file) throws IOException {
 
-        //read PDF metadata in iTextPDF
-        PdfReader reader = new PdfReader(file.getInputStream());
-        PdfDocument doc = new PdfDocument(reader);
-        PdfDocumentInfo docInfo = doc.getDocumentInfo();
+        try (PdfReader reader = new PdfReader(file.getInputStream());
+             PdfDocument doc = new PdfDocument(reader)) {
 
-        //get created on Date
-        String rawCreationDate = doc.getDocumentInfo().getMoreInfo("CreationDate");
-        Calendar calender = PdfDate.decode(rawCreationDate);
-        Date createdOn = calender.getTime();
+            // Read PDF metadata
+            PdfDocumentInfo docInfo = doc.getDocumentInfo();
 
+            // Get creation date (might be missing)
+            String rawCreationDate = docInfo.getMoreInfo("CreationDate");
+            Calendar calendar = PdfDate.decode(rawCreationDate);
 
-        return DocumentDTO.builder()
-                .filename(file.getOriginalFilename())
-                .author(docInfo.getAuthor())
-                .creator(docInfo.getCreator())
-                .pages(doc.getNumberOfPages())
-                .createdOn(createdOn)
-                .build();
+            Date createdOn = null;
+
+            if (calendar != null) {
+                createdOn = calendar.getTime();
+            }
+
+            return DocumentDTO.builder()
+                    .filename(file.getOriginalFilename())
+                    .author(docInfo.getAuthor())
+                    .creator(docInfo.getCreator())
+                    .pages(doc.getNumberOfPages())
+                    .createdOn(createdOn)
+                    .build();
+        }
     }
-
 }
