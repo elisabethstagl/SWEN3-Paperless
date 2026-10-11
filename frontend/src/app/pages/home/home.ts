@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/list';
 import { DocumentContainer } from '../../components/document-container/document-container';
 import { DocumentStore } from '../../services/document-store';
+import { NoteApiService } from '../../services/note-api-service';
 
 @Component({
   selector: 'app-home',
@@ -17,6 +18,10 @@ import { DocumentStore } from '../../services/document-store';
 })
 export class Home {
   readonly documentStore = inject(DocumentStore)
+  readonly noteApiService = inject(NoteApiService)
+  
+  constructor() {
+  }
 
   onDragOver(event: DragEvent) {
     event.preventDefault();

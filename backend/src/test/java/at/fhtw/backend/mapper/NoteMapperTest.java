@@ -21,14 +21,12 @@ class NoteMapperTest {
         Note note = Note.builder()
                 .id(id)
                 .content("this is a test content - Entity to DTO")
-                .author("test author")
                 .build();
 
         NoteDTO result = noteMapper.toDTO(note);
 
         assertEquals(id, result.getId());
         assertEquals("this is a test content - Entity to DTO", result.getContent());
-        assertEquals("test author", result.getAuthor());
     }
 
     @Test
@@ -38,7 +36,6 @@ class NoteMapperTest {
         NoteDTO noteDTO = NoteDTO.builder()
                 .id(id)
                 .content("this is a test content - DTO to Entity")
-                .author("test author")
                 .build();
 
         Note result = noteMapper.toEntity(noteDTO);
@@ -46,7 +43,6 @@ class NoteMapperTest {
         assertNull(result.getId());
         assertNull(result.getDocument());
         assertEquals("this is a test content - DTO to Entity", result.getContent());
-        assertEquals("test author", result.getAuthor());
     }
 
     @Test
@@ -60,20 +56,17 @@ class NoteMapperTest {
 
         Note note = Note.builder()
                 .id(noteId)
-                .author("Old Author")
                 .content("Old Content")
                 .document(document)
                 .build();
 
         NoteDTO updateDTO = NoteDTO.builder()
                 .id(UUID.randomUUID())
-                .author("New Author")
                 .content("New Content")
                 .build();
 
         noteMapper.updateEntity(updateDTO, note);
 
-        assertEquals("New Author", note.getAuthor());
         assertEquals("New Content", note.getContent());
 
         assertEquals(noteId, note.getId());
