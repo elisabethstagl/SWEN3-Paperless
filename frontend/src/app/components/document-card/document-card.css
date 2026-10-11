@@ -3,6 +3,36 @@
   max-width: 560px;
   box-sizing: border-box;
   padding: 20px 20px 12px;
+  border-color: #ead9d4;
+  border-radius: 20px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(74, 47, 39, 0.08);
+    cursor: pointer;
+  }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.icon-badge {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f6e3de;
+}
+
+.doc-icon {
+  color: #8a4b3c;
 }
 
 .card-heading {
@@ -10,4 +40,39 @@
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+}
+
+.doc-filename {
+  margin: 0;
+  font-family: "DM Serif Display", serif;
+  font-weight: 400;
+  font-size: 18px;
+  color: #4a2f27;
+  white-space: nowrap;
+}
+
+.doc-creator {
+  margin: 0;
+  font-size: 13px;
+  color: #8a6f66;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f1e4e0;
+}
+
+.delete-button,
+.download-button {
+  box-shadow: none;
+}
+
+.download-button {
+  background-color: #f6e3de;
+  color: #8a4b3c;;
 }

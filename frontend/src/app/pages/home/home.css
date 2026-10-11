@@ -1,7 +1,8 @@
 .add-button {
-  position: absolute;
+  position: fixed;
   right: 50px;
-  bottom: 110px
+  bottom: 110px;
+  z-index: 200;
 }
 
 .header-text {
@@ -27,13 +28,46 @@
   margin: 0;
 }
 
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  box-sizing: border-box;
+}
+
+.header-section {
+  position: relative;
+  flex: 0 0 auto;
+  z-index: 150;
+}
+
+mat-divider {
+  flex: 0 0 auto;
+}
+
+app-document-container {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: 10px;
+  padding-bottom: 180px;
+  scrollbar-width: none;
+  margin-top: 10px;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16px);
+}
+
+&::-webkit-scrollbar {
+  display: none;
+}
 
 .books-pile-img {
   width: 150px;
   height: 150px;
-  position: absolute;
+  position: fixed;
   right: 10px;
   bottom: 0;
+  z-index: 100;
 }
 
 .books-img-1 {
@@ -41,7 +75,7 @@
   height: 400px;
   position: absolute;
   right: 400px;
-  top: -114px;
+  top: -174px;
 }
 
 .books-img-2 {
@@ -49,7 +83,7 @@
   height: 250px;
   position: absolute;
   right: 150px;
-  top: -35px;
+  top: -95px;
 }
 
 .plant-img {
@@ -57,8 +91,10 @@
   height: 300px;
   position: absolute;
   right: -20px;
-  top: -3px;
+  top: -63px;
+  z-index: 100;
 }
+
 
 /*-----------TABLET-----------*/
 
@@ -72,14 +108,14 @@
     width: 190px;
     height: 190px;
     right: 120px;
-    top: 5px;
+    top: -55px;
   }
 
   .plant-img {
     width: 220px;
     height: 220px;
     right: -15px;
-    top: 35px;
+    top: -26px;
   }
 
   .books-pile-img {

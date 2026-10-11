@@ -6,9 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { NoteModal } from '../../note-modal/note-modal';
 import { MatDialog } from '@angular/material/dialog';
 
+import {MatTooltip} from '@angular/material/tooltip';
 @Component({
   selector: 'app-document-card',
-  imports: [MatCard, MatIcon, MatButtonModule],
+  imports: [MatCard, MatIcon, MatButtonModule, MatTooltip],
   templateUrl: './document-card.html',
   styleUrl: './document-card.css',
 })
