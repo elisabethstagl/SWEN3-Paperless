@@ -17,6 +17,7 @@
   }
 }
 
+
 .card-header {
   display: flex;
   align-items: center;
@@ -51,7 +52,9 @@
   font-weight: 400;
   font-size: 18px;
   color: #4a2f27;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .doc-creator {
