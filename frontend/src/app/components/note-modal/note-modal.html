@@ -1,4 +1,3 @@
-
 <div class="modal-header">
   <h2 mat-dialog-title>Notes – {{ document.filename }}</h2>
 
@@ -37,27 +36,26 @@
             }
           </mat-form-field>
 
-
           <div class="note-actions">
             <button
               matMiniFab
-              class="edit-note-button"
-              matTooltip="Edit note"
-              aria-label="Edit note"
-              (click)="startEdit(note)">
-              <mat-icon>edit</mat-icon>
+              class="save-note-button"
+              matTooltip="Save note"
+              aria-label="Save note"
+              [disabled]="!editContent().trim() || editContent().trim().length > 500"
+              (click)="saveEdit(note)">
+              <mat-icon>check</mat-icon>
             </button>
 
             <button
               matMiniFab
-              class="delete-note-button"
-              matTooltip="Delete note"
-              aria-label="Delete note"
-              (click)="delete(note)">
-              <mat-icon>delete</mat-icon>
+              class="cancel-note-button"
+              matTooltip="Cancel editing"
+              aria-label="Cancel editing"
+              (click)="cancelEdit()">
+              <mat-icon>close</mat-icon>
             </button>
           </div>
-
 
         } @else {
 
