@@ -1,0 +1,27 @@
+name: .zip
+ 
+on:
+  push:
+    branches: [main]
+ 
+permissions:
+  contents: read
+ 
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v7
+ 
+      - name: zip
+        id: zip
+        run: |
+          git archive --format=zip -o "swen3-paperless.zip" HEAD
+ 
+      - name: upload zip
+        uses: actions/upload-artifact@v7
+        with:
+          path: swen3-paperless.zip
+          archive: false
+          retention-days: 30
