@@ -11,6 +11,8 @@ public interface DocumentMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "notes", ignore = true)
+    @Mapping(target = "pages", ignore = true)
+    @Mapping(target = "createdOn", ignore = true)
     void updateEntity(DocumentDTO dto, @MappingTarget Document doc);
 
 }

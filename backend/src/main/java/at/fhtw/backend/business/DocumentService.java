@@ -1,6 +1,7 @@
 package at.fhtw.backend.business;
 
 import at.fhtw.backend.PDFMetadataExtractor;
+import at.fhtw.backend.dto.NoteDTO;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.mapper.DocumentMapper;
@@ -88,7 +89,9 @@ public class DocumentService {
         return true;
     }
 
-    public Optional<DocumentDTO> updateDocument(UUID id, MultipartFile file) throws IOException {
+    public Optional<DocumentDTO> updateDocument(
+            UUID id,
+            DocumentDTO documentDTO) {
 
         Optional<Document> existing = documentRepository.findById(id);
 
@@ -96,17 +99,14 @@ public class DocumentService {
             return Optional.empty();
         }
 
-        validateFile(file);
-
-        DocumentDTO dto = PDFMetadataExtractor.extractMetadata(file);
-
-        Set<ConstraintViolation<DocumentDTO>> violations = validator.validate(dto);
+        Set<ConstraintViolation<DocumentDTO>> violations =
+                validator.validate(documentDTO);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
 
-        documentMapper.updateEntity(dto, existing.get());
+        documentMapper.updateEntity(documentDTO, existing.get());
 
         Document saved = documentRepository.save(existing.get());
 
