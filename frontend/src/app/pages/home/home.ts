@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDivider } from '@angular/material/list';
 import { DocumentContainer } from '../../components/document-container/document-container';
 import { DocumentStore } from '../../services/document-store';
 import { NoteApiService } from '../../services/note-api-service';
+import {Header} from '../../components/header/header';
 
 @Component({
   selector: 'app-home',
-  imports: [MatButtonModule, MatIconModule, MatDivider, DocumentContainer],
+  imports: [MatButtonModule, MatIconModule, DocumentContainer, Header],
   templateUrl: './home.html',
   styleUrl: './home.css',
   host: {
@@ -19,7 +19,7 @@ import { NoteApiService } from '../../services/note-api-service';
 export class Home {
   readonly documentStore = inject(DocumentStore)
   readonly noteApiService = inject(NoteApiService)
-  
+
   constructor() {
   }
 
