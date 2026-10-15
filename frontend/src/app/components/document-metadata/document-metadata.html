@@ -1,0 +1,79 @@
+<section class="metadata-section">
+  <div class="section-heading">
+    <h2>Document Details</h2>
+    <div class="action-buttons">
+      @if (!isEditing()) {
+        <button matMiniFab type="button" class="edit-button"
+                aria-label="Edit document" matTooltip="Edit" (click)="startEditing()">
+          <mat-icon>edit</mat-icon>
+        </button>
+      } @else {
+        <button matMiniFab type="button" class="save-button"
+                aria-label="Save changes" matTooltip="Save" [disabled]="isSaving()" (click)="saveChanges()">
+          <mat-icon>check</mat-icon>
+        </button>
+        <button matMiniFab type="button" class="cancel-button"
+                aria-label="Cancel editing" matTooltip="Cancel" [disabled]="isSaving()" (click)="cancelEditing()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <form [formGroup]="form" class="details-form">
+    @if (isEditing()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Filename</mat-label>
+        <input matInput formControlName="filename">
+      </mat-form-field>
+    } @else {
+      <div class="display-field">
+        <span class="field-label">Filename</span>
+        <span class="field-value">{{ document().filename }}</span>
+      </div>
+    }
+
+    @if (isEditing()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Author</mat-label>
+        <input matInput formControlName="author">
+      </mat-form-field>
+    } @else {
+      <div class="display-field">
+        <span class="field-label">Author</span>
+        <span class="field-value">{{ document().author || '—' }}</span>
+      </div>
+    }
+
+    @if (isEditing()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Creator</mat-label>
+        <input matInput formControlName="creator">
+      </mat-form-field>
+    } @else {
+      <div class="display-field">
+        <span class="field-label">Creator</span>
+        <span class="field-value">{{ document().creator || '—' }}</span>
+      </div>
+    }
+  </form>
+
+  <div class="readonly-details">
+    <div class="detail-row">
+      <span>Pages</span>
+      <strong>{{ document().pages ?? '—' }}</strong>
+    </div>
+    <div class="detail-row">
+      <span>Created on</span>
+      <strong>{{ document().createdOn ? (document().createdOn | date:'dd.MM.yyyy') : '—' }}</strong>
+    </div>
+    <div class="detail-row summary-row">
+      <span>Summary</span>
+      <p class="summary-content">{{ document().summary || 'No summary available yet.' }}</p>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error-message">{{ errorMessage() }}</p>
+  }
+</section>

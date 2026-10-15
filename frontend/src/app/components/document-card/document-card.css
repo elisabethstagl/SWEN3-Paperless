@@ -9,6 +9,7 @@
   border: 1px solid #ead9d4;
   border-radius: 20px;
   transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
 
   &:hover {
     z-index: 2;
