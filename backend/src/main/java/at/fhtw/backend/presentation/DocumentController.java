@@ -2,6 +2,7 @@ package at.fhtw.backend.presentation;
 
 import at.fhtw.backend.business.DocumentService;
 import at.fhtw.backend.dto.DocumentDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,10 +44,21 @@ public class DocumentController {
         Optional<DocumentDTO> created = documentService.upload(file);
         return new ResponseEntity<>(created.get(), HttpStatus.CREATED);
     }
+//
+//    @PutMapping("/{id}")
+//    public ResponseEntity<DocumentDTO> updateDocument(@PathVariable UUID id, @RequestParam("file") MultipartFile file) throws IOException {
+//        Optional<DocumentDTO> doc = documentService.updateDocument(id, file);
+//
+//        if (doc.isPresent()) {
+//            return new ResponseEntity<>(doc.get(), HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DocumentDTO> updateDocument(@PathVariable UUID id, @RequestParam("file") MultipartFile file) throws IOException {
-        Optional<DocumentDTO> doc = documentService.updateDocument(id, file);
+    public ResponseEntity<DocumentDTO> updateDocument(@PathVariable UUID id,  @Valid @RequestBody DocumentDTO documentDTO ) {
+        Optional<DocumentDTO> doc = documentService.updateDocument(id, documentDTO);
 
         if (doc.isPresent()) {
             return new ResponseEntity<>(doc.get(), HttpStatus.OK);
