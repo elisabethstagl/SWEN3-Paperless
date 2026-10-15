@@ -7,6 +7,7 @@ import { NoteModal } from '../note-modal/note-modal';
 import { MatDialog } from '@angular/material/dialog';
 
 import {MatTooltip} from '@angular/material/tooltip';
+import {Router} from '@angular/router';
 @Component({
   selector: 'app-document-card',
   imports: [MatCard, MatIcon, MatButtonModule, MatTooltip],
@@ -16,6 +17,14 @@ import {MatTooltip} from '@angular/material/tooltip';
 export class DocumentCard {
 
   readonly dialog = inject(MatDialog);
+  private router = inject(Router);
+
+  document = input.required<PaperlessDocument>();
+  delete = output<string>();
+
+  openDocument(): void {
+    this.router.navigate(['/document-details', this.document().id]);
+  }
 
   openNoteModal() {
     this.dialog.open(NoteModal, {
@@ -24,7 +33,5 @@ export class DocumentCard {
       data: this.document(),
     });
   }
-  document = input.required<PaperlessDocument>();
-  delete = output<string>();
 
 }

@@ -76,10 +76,10 @@ Fill in the required values in the `.env` file. The `.env` file contains local c
 From the project root directory, start the complete application and its required infrastructure using Docker Compose:
 
 ```bash
-docker compose --profile full up --build -d
+docker compose up -d
 ```
 
-This builds the required Docker images and starts all services of the `full` profile in detached mode.
+This builds the required Docker images and starts all services in detached mode.
 
 ### 3. Test the REST API
 
@@ -92,13 +92,13 @@ Import the provided Postman collection into Postman. The collection contains req
 To stop and remove the containers started by Docker Compose, run:
 
 ```bash
-docker compose --profile full down
+docker compose down
 ```
 
 To start the application again, run:
 
 ```bash
-docker compose --profile full up --build -d
+docker compose up -d
 ```
 
 ---
@@ -113,13 +113,13 @@ Base path:
 
 ## Document Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/documents` | Get all documents |
-| `GET` | `/api/documents/{id}` | Get document by ID |
-| `POST` | `/api/documents` | Upload a PDF document |
-| `PUT` | `/api/documents/{id}` | Replace/update a document |
-| `DELETE` | `/api/documents/{id}` | Delete a document |
+| Method | Endpoint | Description                                               |
+|--------|----------|-----------------------------------------------------------|
+| `GET` | `/api/documents` | Get all documents                                         |
+| `GET` | `/api/documents/{id}` | Get document by ID                                        |
+| `POST` | `/api/documents` | Upload a PDF document                                     |
+| `PUT` | `/api/documents/{id}` | Update a document (fields like author, creator, title,..) |
+| `DELETE` | `/api/documents/{id}` | Delete a document                                         |
 
 
 ## Note Endpoints
@@ -194,6 +194,39 @@ The additional use case allows users to create and manage notes associated with 
 
 Each note is stored as a separate entity and is associated with a specific document. Users can create, view, update, and delete notes.
 
+---
+
+# GitHub Kanban Board
+
+To organize and track our tasks efficiently, we use a GitHub Project Kanban board. Each task is created as a GitHub Issue and assigned to a team member to ensure clear responsibilities. Issues are moved between different columns based on their current status, allowing the team to monitor progress and see who is working on what.
+
+![img.png](img.png)
+
+---
+
+# Branching Strategy and Workflow
+
+We follow a feature-based branching strategy to keep our development process organized. The development branch serves as the main integration branch, while the main branch contains the completed work from each sprint.
+
+For each new feature or issue, we create a separate branch based on development. Once the implementation is complete, a Pull Request is created to merge the changes back into development.
+
+At the end of each sprint, we merge development into main to incorporate all completed features. We also clean up outdated or unused branches to keep the repository organized and maintainable.
+
+
+# CI/CD Pipeline
+
+We use GitHub Actions to automate parts of our development workflow. Our current pipeline packages the project into a ZIP archive, making it easier to distribute and access the project files.
+
+The workflow is managed directly through GitHub Actions and helps ensure a consistent packaging process.
+
+We plan to add automated testing, linting, and other checks to our CI/CD pipeline in the future to improve code quality and make development easier.
+
+---
+# Lessons Learned 
+
+
+---
+
 # Tracked Time
 
 ## Elisabeth Stagl
@@ -216,12 +249,23 @@ Each note is stored as a separate entity and is associated with a specific docum
 | Task / Feature                   | Time (h) |
 |----------------------------------|:--------:|
 | Frontend Setup + Styling         |   3.0    |
+| Frontend Styling                 |   2.0    |
+| Validation + Styling             |   5.5    |
+| Changed Document Update method   |   1.0    |
+| Detail page                      |   0.0    |
+| Protocol / Project Specification |   1.0    |
+| **Subtotal**                     | **0.0**  |
+
+### Sprint 3
+
+| Task / Feature                   | Time (h) |
+|----------------------------------|:--------:|
 | Protocol / Project Specification |   0.0    |
 | **Subtotal**                     | **0.0**  |
 
 ## Maximilian Jandl
 
-### Sprint 1 (not up-to-date!)
+### Sprint 1
 
 | Task / Feature                                   | Time (h) |
 |--------------------------------------------------|:--------:|
