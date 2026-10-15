@@ -18,6 +18,14 @@ export class DocumentStore {
     });
   }
 
+  updateDocument(document: PaperlessDocument): void {
+    this._documents.update(documents =>
+      documents.map(existing =>
+        existing.id === document.id ? document : existing
+      )
+    );
+  }
+
   delete(id: string) {
     this.documentApiService.delete(id).subscribe(() => {
       this._documents.update((docs) => docs.filter((d) => d.id !== id));

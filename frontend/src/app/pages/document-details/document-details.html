@@ -1,8 +1,335 @@
+
 <div class="page">
+
   <app-header></app-header>
 
-  <div class="details-content">
-    <h1>Document Details</h1>
-    <p>Document ID: {{ documentId }}</p>
-  </div>
+  @if (isLoading()) {
+
+    <p class="status-message">Loading document...</p>
+
+  } @else if (document(); as document) {
+
+    <div class="details-layout">
+
+      <section class="preview-section">
+
+        <div class="section-heading">
+          <h2>{{ document.filename }}</h2>
+        </div>
+
+        <div class="preview-container">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <p>PDF preview will appear here</p>
+        </div>
+
+      </section>
+
+      <div class="right-column">
+
+        <section class="metadata-section">
+
+          <div class="section-heading">
+            <h2>Document Details</h2>
+
+            <div class="action-buttons">
+
+              @if (!isEditing()) {
+
+                <button
+                  matMiniFab
+                  type="button"
+                  class="edit-button"
+                  aria-label="Edit document"
+                  matTooltip="Edit"
+                  (click)="startEditing()">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+              } @else {
+
+                <button
+                  matMiniFab
+                  type="button"
+                  class="save-button"
+                  aria-label="Save changes"
+                  matTooltip="Save"
+                  [disabled]="isSaving()"
+                  (click)="saveChanges()">
+                  <mat-icon>check</mat-icon>
+                </button>
+
+                <button
+                  matMiniFab
+                  type="button"
+                  class="cancel-button"
+                  aria-label="Cancel editing"
+                  matTooltip="Cancel"
+                  [disabled]="isSaving()"
+                  (click)="cancelEditing()">
+                  <mat-icon>close</mat-icon>
+                </button>
+
+              }
+
+            </div>
+          </div>
+
+          <form [formGroup]="form" class="details-form">
+
+            @if (isEditing()) {
+              <mat-form-field appearance="outline">
+                <mat-label>Filename</mat-label>
+                <input matInput formControlName="filename">
+              </mat-form-field>
+            } @else {
+              <div class="display-field">
+                <span class="field-label">Filename</span>
+                <span class="field-value">{{ document.filename }}</span>
+              </div>
+            }
+
+            @if (isEditing()) {
+              <mat-form-field appearance="outline">
+                <mat-label>Author</mat-label>
+                <input matInput formControlName="author">
+              </mat-form-field>
+            } @else {
+              <div class="display-field">
+                <span class="field-label">Author</span>
+                <span class="field-value">{{ document.author || '—' }}</span>
+              </div>
+            }
+
+            <!-- CREATOR -->
+
+            @if (isEditing()) {
+              <mat-form-field appearance="outline">
+                <mat-label>Creator</mat-label>
+                <input matInput formControlName="creator">
+              </mat-form-field>
+            } @else {
+              <div class="display-field">
+                <span class="field-label">Creator</span>
+                <span class="field-value">{{ document.creator || '—' }}</span>
+              </div>
+            }
+
+          </form>
+
+          <!-- READ-ONLY DOCUMENT DETAILS -->
+
+          <div class="readonly-details">
+
+            <div class="detail-row">
+              <span>Pages</span>
+              <strong>{{ document.pages ?? '—' }}</strong>
+            </div>
+
+            <div class="detail-row">
+              <span>Created on</span>
+              <strong>
+                {{ document.createdOn
+                ? (document.createdOn | date:'dd.MM.yyyy')
+                : '—' }}
+              </strong>
+            </div>
+
+            <div class="detail-row summary-row">
+              <span>Summary</span>
+              <p class="summary-content">
+                {{ document.summary || 'No summary available yet.' }}
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+        <section class="notes-section">
+
+          <div class="section-heading">
+            <h2>Notes</h2>
+
+            <button
+              matMiniFab
+              type="button"
+              class="edit-note-button"
+              aria-label="Add note"
+              matTooltip="Add note"
+              [disabled]="isAddingNote()"
+              (click)="startAddingNote()">
+              <mat-icon>note_add</mat-icon>
+            </button>
+          </div>
+
+          <div class="notes-list">
+
+            @if (isAddingNote()) {
+
+              <div class="note-item">
+
+                <mat-form-field appearance="outline">
+                  <mat-label>New note</mat-label>
+
+                  <textarea
+                    matInput
+                    rows="3"
+                    [value]="newNoteContent"
+                    (input)="newNoteContent = $any($event.target).value">
+                  </textarea>
+
+                  @if (newNoteContent.length > 500) {
+                    <mat-hint class="validation-error">
+                      Note must not exceed 500 characters.
+                    </mat-hint>
+                  }
+                </mat-form-field>
+
+                <div class="note-actions">
+
+                  <button
+                    matMiniFab
+                    type="button"
+                    class="save-note-button"
+                    aria-label="Save note"
+                    matTooltip="Save note"
+                    [disabled]="isSavingNewNote() ||
+                                !newNoteContent.trim() ||
+                                newNoteContent.trim().length > 500"
+                    (click)="saveNewNote()">
+                    <mat-icon>check</mat-icon>
+                  </button>
+
+                  <button
+                    matMiniFab
+                    type="button"
+                    class="cancel-note-button"
+                    aria-label="Cancel new note"
+                    matTooltip="Cancel"
+                    [disabled]="isSavingNewNote()"
+                    (click)="cancelAddingNote()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+
+                </div>
+
+              </div>
+
+            }
+
+            @for (note of notes(); track note.id) {
+
+              <div class="note-item">
+
+                @if (editingNoteId() === note.id) {
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Edit note</mat-label>
+
+                    <textarea
+                      matInput
+                      rows="3"
+                      [value]="noteContent"
+                      (input)="noteContent = $any($event.target).value">
+                    </textarea>
+
+                    @if (noteContent.length > 500) {
+                      <mat-hint class="validation-error">
+                        Note must not exceed 500 characters.
+                      </mat-hint>
+                    }
+                  </mat-form-field>
+
+                  <div class="note-actions">
+
+                    <button
+                      matMiniFab
+                      type="button"
+                      class="save-note-button"
+                      aria-label="Save note"
+                      matTooltip="Save note"
+                      [disabled]="savingNoteId() === note.id ||
+                                  !noteContent.trim() ||
+                                  noteContent.trim().length > 500"
+                      (click)="saveNote(note)">
+                      <mat-icon>check</mat-icon>
+                    </button>
+
+                    <button
+                      matMiniFab
+                      type="button"
+                      class="cancel-note-button"
+                      aria-label="Cancel editing"
+                      matTooltip="Cancel"
+                      [disabled]="savingNoteId() === note.id"
+                      (click)="cancelEditingNote()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+
+                  </div>
+
+                } @else {
+
+                  <!-- DISPLAY NOTE -->
+
+                  <p class="note-content">{{ note.content }}</p>
+
+                  <div class="note-actions">
+
+                    <button
+                      matMiniFab
+                      type="button"
+                      class="edit-note-button"
+                      aria-label="Edit note"
+                      matTooltip="Edit note"
+                      (click)="startEditingNote(note)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+
+                    <button
+                      matMiniFab
+                      type="button"
+                      class="delete-note-button"
+                      aria-label="Delete note"
+                      matTooltip="Delete note"
+                      (click)="deleteNote(note)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+
+                  </div>
+
+                }
+
+              </div>
+
+            } @empty {
+
+              @if (!isAddingNote()) {
+                <p class="empty-message">No notes yet.</p>
+              }
+
+            }
+
+          </div>
+
+        </section>
+
+        <!-- ERROR MESSAGE -->
+
+        @if (errorMessage()) {
+          <p class="error-message">{{ errorMessage() }}</p>
+        }
+
+      </div>
+
+    </div>
+
+  } @else {
+
+    <p class="status-message">
+      {{ errorMessage() || 'Document not found.' }}
+    </p>
+
+  }
+
 </div>

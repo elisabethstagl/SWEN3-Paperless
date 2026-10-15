@@ -13,6 +13,7 @@ public interface DocumentMapper {
     @Mapping(target = "notes", ignore = true)
     @Mapping(target = "pages", ignore = true)
     @Mapping(target = "createdOn", ignore = true)
+    @Mapping(target = "summary", ignore = true)
     void updateEntity(DocumentDTO dto, @MappingTarget Document doc);
 
 }
