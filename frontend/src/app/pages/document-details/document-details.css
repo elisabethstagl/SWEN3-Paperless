@@ -1,5 +1,4 @@
 /* PAGE */
-
 .page {
   display: flex;
   flex-direction: column;
@@ -12,7 +11,6 @@ app-header {
 }
 
 /* TWO-COLUMN LAYOUT */
-
 .details-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
@@ -23,17 +21,16 @@ app-header {
   box-sizing: border-box;
 }
 
-.preview-section,
-.metadata-section,
-.notes-section {
+.preview-section {
   border: 1px solid #ecd8d2;
   border-radius: 18px;
   padding: 20px;
   background-color: #fffaf9;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
-
-/* HEADINGS */
 
 .section-heading {
   display: flex;
@@ -49,14 +46,6 @@ app-header {
   color: #4a2f27;
   margin: 0;
   overflow-wrap: anywhere;
-}
-
-/* PDF PREVIEW */
-
-.preview-section {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
 }
 
 .preview-container {
@@ -77,8 +66,6 @@ app-header {
   font-size: 48px;
 }
 
-/* RIGHT COLUMN */
-
 .right-column {
   display: flex;
   flex-direction: column;
@@ -92,268 +79,11 @@ app-header {
   display: none;
 }
 
-/* DOCUMENT METADATA */
-
-.metadata-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.metadata-section .section-heading {
-  margin-bottom: 4px;
-}
-
-/* DOCUMENT FORM */
-
-.details-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.details-form mat-form-field {
-  width: 100%;
-}
-
-/* READ-ONLY DISPLAY FIELDS */
-
-.display-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px 16px;
-  border: 1px solid #ead9d4;
-  border-radius: 12px;
-  background-color: #fffaf8;
-}
-
-.field-label {
-  font-family: "DM Sans", sans-serif;
-  font-size: 12px;
-  color: #8a6f66;
-}
-
-.field-value {
-  font-family: "DM Sans", sans-serif;
-  font-size: 14px;
-  color: #4a2f27;
-  overflow-wrap: anywhere;
-}
-
-.summary-row {
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 16px;
-  margin-bottom: 0;
-}
-
-.summary-content {
-  margin: 0;
-  font-family: "DM Sans", sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  font-weight: 400;
-  color: #4a2f27;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-
-/* NON-EDITABLE METADATA */
-
-.readonly-details {
-  border-top: 1px solid #ecd8d2;
-  padding-top: 20px;
-  margin-top: 4px;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
-  font-family: "DM Sans", sans-serif;
-  font-size: 14px;
-  color: #8a6f66;
-}
-
-.detail-row:last-child {
-  margin-bottom: 0;
-}
-
-.detail-row strong {
-  color: #4a2f27;
-  font-weight: 600;
-  text-align: right;
-}
-
-/* DOCUMENT BUTTONS */
-
-.action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.edit-button,
-.save-button {
-  background-color: #dce9dc;
-  color: #60846b;
-}
-
-.cancel-button {
-  background-color: #f5e0dc;
-  color: #9b5144;
-}
-
-.action-buttons button {
-  border-radius: 12px;
-  box-shadow: none;
-}
-
-/* NOTES SECTION */
-
-.notes-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.notes-section .section-heading {
-  margin-bottom: 4px;
-}
-
-/* NOTES LIST */
-
-.notes-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* NOTE CARDS */
-
-.note-item {
-  padding: 16px;
-  border: 1px solid #ead9d4;
-  border-radius: 14px;
-  background-color: #fffaf8;
-}
-
-.note-content {
-  margin: 0 0 12px;
-  color: #4a2f27;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.note-item mat-form-field {
-  width: 100%;
-}
-
-/* NOTE BUTTON CONTAINER */
-
-.note-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 10px;
-}
-
-/* NOTE BUTTON SHADOWS */
-
-.edit-note-button,
-.delete-note-button,
-.save-note-button,
-.cancel-note-button {
-  box-shadow: none;
-}
-
-/* EDIT NOTE */
-
-.edit-note-button {
-  background-color: #dce8d8;
-  color: #607d65;
-}
-
-.edit-note-button:hover:not(:disabled) {
-  background-color: #cbdcc7;
-}
-
-/* DELETE NOTE */
-
-.delete-note-button {
-  background-color: #f9dfe4;
-  color: #9b1748;
-}
-
-.delete-note-button:hover:not(:disabled) {
-  background-color: #f3cbd4;
-}
-
-/* SAVE NOTE */
-
-.save-note-button {
-  background-color: #dce8d8;
-  color: #607d65;
-  border-radius: 12px;
-}
-
-.save-note-button:hover:not(:disabled) {
-  background-color: #cbdcc7;
-}
-
-/* CANCEL NOTE */
-
-.cancel-note-button {
-  background-color: #f6e3de;
-  color: #8a4b3c;
-  border-radius: 12px;
-}
-
-.cancel-note-button:hover:not(:disabled) {
-  background-color: #ead0c7;
-}
-
-/* DISABLED BUTTONS */
-
-.save-note-button:disabled,
-.cancel-note-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* EMPTY NOTES */
-
-.empty-message {
-  color: #8a6f66;
-  text-align: center;
-  padding: 24px;
-}
-
-/* VALIDATION */
-
-.validation-error {
-  color: #c62828;
-}
-
-/* STATUS AND ERRORS */
-
 .status-message {
   padding: 32px;
   font-family: "DM Sans", sans-serif;
   color: #8a6f66;
 }
-
-.error-message {
-  color: #c62828;
-  font-family: "DM Sans", sans-serif;
-  font-size: 14px;
-}
-
-/* TABLET */
 
 @media (max-width: 900px) {
   .details-layout {
@@ -371,8 +101,6 @@ app-header {
   }
 }
 
-/* MOBILE */
-
 @media (max-width: 600px) {
   .details-layout {
     padding-top: 16px;
@@ -383,9 +111,7 @@ app-header {
     min-height: 300px;
   }
 
-  .preview-section,
-  .metadata-section,
-  .notes-section {
+  .preview-section {
     padding: 16px;
   }
 

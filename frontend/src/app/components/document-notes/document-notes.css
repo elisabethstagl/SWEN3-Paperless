@@ -1,0 +1,135 @@
+.notes-section {
+  border: 1px solid #ecd8d2;
+  border-radius: 18px;
+  padding: 20px;
+  background-color: #fffaf9;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.section-heading h2 {
+  font-family: "DM Serif Display", serif;
+  font-size: 22px;
+  color: #4a2f27;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.note-item {
+  padding: 16px;
+  border: 1px solid #ead9d4;
+  border-radius: 14px;
+  background-color: #fffaf8;
+}
+
+.note-content {
+  margin: 0 0 12px;
+  color: #4a2f27;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note-item mat-form-field {
+  width: 100%;
+}
+
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-note-button,
+.delete-note-button,
+.save-note-button,
+.cancel-note-button,
+.edit-note-button:hover:not(:disabled),
+.delete-note-button:hover:not(:disabled),
+.save-note-button:hover:not(:disabled),
+.cancel-note-button:hover:not(:disabled) {
+  box-shadow: none;
+}
+
+.edit-note-button {
+  background-color: #dce8d8;
+  color: #607d65;
+}
+
+.edit-note-button:hover:not(:disabled) {
+  background-color: #cbdcc7;
+}
+
+.delete-note-button {
+  background-color: #f9dfe4;
+  color: #9b1748;
+}
+
+.delete-note-button:hover:not(:disabled) {
+  background-color: #f3cbd4;
+}
+
+.save-note-button {
+  background-color: #dce8d8;
+  color: #607d65;
+  border-radius: 12px;
+}
+
+.save-note-button:hover:not(:disabled) {
+  background-color: #cbdcc7;
+}
+
+.cancel-note-button {
+  background-color: #f6e3de;
+  color: #8a4b3c;
+  border-radius: 12px;
+}
+
+.cancel-note-button:hover:not(:disabled) {
+  background-color: #ead0c7;
+}
+
+.save-note-button:disabled, .cancel-note-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.empty-message {
+  color: #8a6f66;
+  text-align: center;
+  padding: 24px;
+}
+
+.validation-error {
+  color: #c62828;
+}
+
+.error-message {
+  color: #c62828;
+}
+
+@media (max-width: 600px) {
+  .notes-section {
+    padding: 16px;
+  }
+
+  .section-heading h2 {
+    font-size: 20px;
+  }
+}
