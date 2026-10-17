@@ -8,6 +8,8 @@ import {NoteApiService} from '../../services/note-api-service';
 import {Note} from '../../models/paperless-note';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmDeleteDialog} from '../confirm-delete-dialog/confirm-delete-dialog';
+import {NotificationService} from '../../services/notification-service';
+import {HttpErrorResponse} from '@angular/common/http';
 
 
 @Component({
@@ -25,9 +27,9 @@ export class DocumentNotes implements OnInit {
   readonly savingNoteId = signal<string | null>(null);
   readonly isAddingNote = signal(false);
   readonly isSavingNewNote = signal(false);
-  readonly errorMessage = signal('');
 
   private readonly dialog = inject(MatDialog);
+  private readonly notificationService = inject(NotificationService);
 
   noteContent = '';
   newNoteContent = '';
@@ -38,11 +40,18 @@ export class DocumentNotes implements OnInit {
 
   loadNotes(): void {
     this.noteApi.getAll(this.documentId()).subscribe({
-      next: notes => this.notes.set(notes),
-      error: error => {
-        console.error('Failed to load notes:', error);
-        this.errorMessage.set('Could not load notes.');
+      next: notes => {
+        this.notes.set(notes);
       },
+
+      error: (error: HttpErrorResponse) => {
+        console.error('Failed to load notes:', error);
+
+        this.notificationService.showHttpError(
+          error,
+          'Could not load notes'
+        );
+      }
     });
   }
 
@@ -66,19 +75,34 @@ export class DocumentNotes implements OnInit {
     }
 
     const content = this.noteContent.trim();
+
     this.savingNoteId.set(note.id);
-    this.errorMessage.set('');
+
     this.noteApi.update(this.documentId(), note.id, content).subscribe({
       next: updatedNote => {
-        this.notes.update(notes => notes.map(existing => existing.id === note.id ? updatedNote : existing));
+        this.notes.update(notes =>
+          notes.map(existing =>
+            existing.id === note.id ? updatedNote : existing
+          )
+        );
+
         this.cancelEditingNote();
         this.savingNoteId.set(null);
+
+        this.notificationService.showSuccess(
+          'Note updated successfully'
+        );
       },
-      error: error => {
+
+      error: (error: HttpErrorResponse) => {
         console.error('Failed to save note:', error);
-        this.errorMessage.set('Could not save note.');
         this.savingNoteId.set(null);
-      },
+
+        this.notificationService.showHttpError(
+          error,
+          'Could not save note'
+        );
+      }
     });
   }
 
@@ -105,11 +129,19 @@ export class DocumentNotes implements OnInit {
           if (this.editingNoteId() === note.id) {
             this.cancelEditingNote();
           }
+
+          this.notificationService.showSuccess(
+            'Note deleted successfully'
+          );
         },
 
-        error: error => {
+        error: (error: HttpErrorResponse) => {
           console.error('Failed to delete note:', error);
-          this.errorMessage.set('Could not delete note.');
+
+          this.notificationService.showHttpError(
+            error,
+            'Could not delete note'
+          );
         }
       });
     });
@@ -135,19 +167,29 @@ export class DocumentNotes implements OnInit {
     }
 
     const content = this.newNoteContent.trim();
+
     this.isSavingNewNote.set(true);
-    this.errorMessage.set('');
+
     this.noteApi.add(this.documentId(), content).subscribe({
       next: note => {
         this.notes.update(notes => [...notes, note]);
         this.cancelAddingNote();
         this.isSavingNewNote.set(false);
+
+        this.notificationService.showSuccess(
+          'Note added successfully'
+        );
       },
-      error: error => {
+
+      error: (error: HttpErrorResponse) => {
         console.error('Failed to add note:', error);
-        this.errorMessage.set('Could not add note.');
         this.isSavingNewNote.set(false);
-      },
+
+        this.notificationService.showHttpError(
+          error,
+          'Could not add note'
+        );
+      }
     });
   }
 }
