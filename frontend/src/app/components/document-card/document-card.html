@@ -13,7 +13,7 @@
   </div>
   <div class="button-container">
     <button class="delete-button" matMiniFab aria-label="Delete document"
-            matTooltip="Delete" (click)="$event.stopPropagation(); delete.emit(document().id)">
+            matTooltip="Delete" (click)="$event.stopPropagation(); confirmDelete()">
       <mat-icon>delete</mat-icon>
     </button>
   </div>
