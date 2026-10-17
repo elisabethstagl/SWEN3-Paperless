@@ -344,7 +344,31 @@ Another important lesson was the importance of validation and user feedback. Val
 |--------------------------------------------------|:--------:|
 | Git Repository Setup and Spring Boot Integration |   0.5    |
 | Docker Setup                                     |   2.0    |
+| Backend                                          |   4.0    |
 | Small Changes                                    |   0.5    |
 | Additional Use Case                              |   1.0    |
 | Protocol / Project Specification                 |   1.0    |
-| **Subtotal**                                     | **0.0**  |
+| **Subtotal**                                     | **9.0**  |
+
+### Sprint 2
+
+| Task / Feature                                        | Time (h) |
+|-------------------------------------------------------|:--------:|
+| Basic Frontend (Document Cards, API Service, Store)   |   4.0    |
+| Nginx Reverse Proxy + Frontend Dockerfile             |   2.5    |
+| CI/CD ZIP Pipeline                                    |   1.0    |
+| Note Use-Cases in Frontend (Note Modal, Note Service) |   4.0    |
+| Docker Compose Profiles + Small Changes               |   1.0    |
+| Protocol / Project Specification                      |   0.5    |
+| **Subtotal**                                          | **13.0** |
+
+### Sprint 3
+
+| Task / Feature                           | Time (h) |
+|------------------------------------------|:--------:|
+| RabbitMQ Setup                           |   3.5    |
+| Logging in Backend                       |   1.5    |
+| Adjusting Frontend/Backend Tests         |   2.5    |
+| CI Testing Pipeline (Frontend + Backend) |   2.0    |
+| Protocol / Project Specification         |   0.5    |
+| **Subtotal**                             | **10.0** |
