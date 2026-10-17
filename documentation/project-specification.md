@@ -28,6 +28,8 @@ Paperless is a document management system that allows users to upload, manage, s
 | iText | PDF metadata extraction |
 | Lombok | Reduction of Java boilerplate |
 | Bruno / Postman | Manual REST API testing |
+| Angular | Frontend framework |
+| Angular Material | UI components, dialogs, and notifications |
 
 Additional technologies such as RabbitMQ, MinIO, Elasticsearch, OCR, and GenAI will be integrated in later sprints.
 
@@ -76,10 +78,14 @@ Fill in the required values in the `.env` file. The `.env` file contains local c
 From the project root directory, start the complete application and its required infrastructure using Docker Compose:
 
 ```bash
-docker compose --profile full up --build -d
+docker compose up -d
 ```
 
-This builds the required Docker images and starts all services of the `full` profile in detached mode.
+This starts all required containers, including the Angular frontend, Spring Boot backend, and PostgreSQL database.
+
+Once the containers are running, the application is available at:
+- Frontend: http://localhost
+- Backend REST API: http://localhost:8081/api/documents
 
 ### 3. Test the REST API
 
@@ -92,13 +98,13 @@ Import the provided Postman collection into Postman. The collection contains req
 To stop and remove the containers started by Docker Compose, run:
 
 ```bash
-docker compose --profile full down
+docker compose down
 ```
 
 To start the application again, run:
 
 ```bash
-docker compose --profile full up --build -d
+docker compose up -d
 ```
 
 ---
@@ -113,13 +119,13 @@ Base path:
 
 ## Document Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/documents` | Get all documents |
-| `GET` | `/api/documents/{id}` | Get document by ID |
-| `POST` | `/api/documents` | Upload a PDF document |
-| `PUT` | `/api/documents/{id}` | Replace/update a document |
-| `DELETE` | `/api/documents/{id}` | Delete a document |
+| Method | Endpoint | Description                                               |
+|--------|----------|-----------------------------------------------------------|
+| `GET` | `/api/documents` | Get all documents                                         |
+| `GET` | `/api/documents/{id}` | Get document by ID                                        |
+| `POST` | `/api/documents` | Upload a PDF document                                     |
+| `PUT` | `/api/documents/{id}` | Update a document (fields like author, creator, title,..) |
+| `DELETE` | `/api/documents/{id}` | Delete a document                                         |
 
 
 ## Note Endpoints
@@ -132,6 +138,67 @@ Base path:
 | `PUT` | `/api/documents/{documentId}/notes/{noteId}`  | Update a note |
 | `DELETE` | `/api/documents/{documentId}/notes/{noteId}` | Delete a note |
 
+
+---
+
+# Frontend
+
+The application includes an Angular frontend that provides a user-friendly interface for managing PDF documents and their associated notes.
+
+Angular Material is used for UI components such as cards, buttons, tooltips, dialogs, and snackbars.
+
+## Features
+
+- **Document Overview:** Display uploaded documents in a card-based layout.
+- **PDF Upload:** Upload PDF documents with client-side validation.
+- **Document Details:** View document information and associated notes.
+- **Note Management:** Create, view, edit, and delete notes associated with documents.
+
+## Frontend Architecture
+
+The frontend is organized into components, services, and models.
+
+- **Components:** Handle the user interface and user interactions.
+- **API Services:** Communicate with the Spring Boot REST API.
+- **DocumentStore:** Manages document state using Angular Signals.
+- **NotificationService:** Provides consistent success and error messages throughout the application.
+
+The frontend communicates with the backend through HTTP requests.
+
+
+---
+
+# Validation and Error Handling
+
+The application implements validation on both the frontend and backend to prevent invalid data from being processed.
+
+## Document Validation
+
+- Only PDF files are accepted for upload.
+- The maximum upload size is 10 MB.
+- Document metadata is validated using Jakarta Bean Validation.
+- Required fields must not be empty.
+- Text fields are restricted to their configured maximum lengths.
+- The number of pages must be at least 1.
+
+## Note Validation
+
+- Notes must not be empty or contain only whitespace.
+- Notes are limited to a maximum of 500 characters.
+- Validation is applied when creating and updating notes.
+- The backend validates incoming requests using `@Valid`, `@NotBlank`, and `@Size`.
+
+## Error Handling
+
+The Spring Boot backend uses a global exception handler to return appropriate HTTP status codes and error responses.
+
+Examples include:
+
+- `400 Bad Request` for invalid input.
+- `404 Not Found` for resources that do not exist.
+- `413 Payload Too Large` for files exceeding the upload size limit.
+
+The Angular frontend displays feedback through Angular Material snackbars. Successful operations are indicated by success messages, while failed operations display error messages.
 
 ---
 
@@ -194,6 +261,44 @@ The additional use case allows users to create and manage notes associated with 
 
 Each note is stored as a separate entity and is associated with a specific document. Users can create, view, update, and delete notes.
 
+---
+
+# GitHub Kanban Board
+
+To organize and track our tasks efficiently, we use a GitHub Project Kanban board. Each task is created as a GitHub Issue and assigned to a team member to ensure clear responsibilities. Issues are moved between different columns based on their current status, allowing the team to monitor progress and see who is working on what.
+
+![img.png](img.png)
+
+---
+
+# Branching Strategy and Workflow
+
+We follow a feature-based branching strategy to keep our development process organized. The development branch serves as the main integration branch, while the main branch contains the completed work from each sprint.
+
+For each new feature or issue, we create a separate branch based on development. Once the implementation is complete, a Pull Request is created to merge the changes back into development.
+
+At the end of each sprint, we merge development into main to incorporate all completed features. We also clean up outdated or unused branches to keep the repository organized and maintainable.
+
+
+# CI/CD Pipeline
+
+We use GitHub Actions to automate parts of our development workflow. Our current pipeline packages the project into a ZIP archive, making it easier to distribute and access the project files.
+
+The workflow is managed directly through GitHub Actions and helps ensure a consistent packaging process.
+
+We plan to add automated testing, linting, and other checks to our CI/CD pipeline in the future to improve code quality and make development easier.
+
+---
+# Lessons Learned 
+
+During this project, we learned how important good organization and a clear project structure are when working in a team. Clear responsibilities and regular communication help everyone stay informed and make collaboration more efficient.
+
+Using GitHub Issues, Pull Requests, and a Kanban board made it easier to organize tasks, track progress, and keep an overview of the current project status. This also helped us understand what other team members were working on.
+
+Another important lesson was the importance of validation and user feedback. Validation helps prevent invalid data and unexpected errors, while clear success and error messages allow users to understand what is happening in the application. Features such as notifications and confirmation dialogs make the application more user-friendly and easier to use.
+
+---
+
 # Tracked Time
 
 ## Elisabeth Stagl
@@ -213,21 +318,57 @@ Each note is stored as a separate entity and is associated with a specific docum
 
 ### Sprint 2
 
+| Task / Feature                        | Time (h) |
+|---------------------------------------|:--------:|
+| Frontend Setup + Styling              |   3.0    |
+| Frontend Styling                      |   2.0    |
+| Validation + Styling                  |   5.5    |
+| Changed Document Update method        |   1.0    |
+| Detail page                           |   3.0    |
+| More validation + snackbar and dialog |   3.5    |
+| Protocol / Project Specification      |   1.5    |
+| **Subtotal**                          | **19.5** |
+
+### Sprint 3
+
 | Task / Feature                   | Time (h) |
 |----------------------------------|:--------:|
-| Frontend Setup + Styling         |   3.0    |
 | Protocol / Project Specification |   0.0    |
 | **Subtotal**                     | **0.0**  |
 
 ## Maximilian Jandl
 
-### Sprint 1 (not up-to-date!)
+### Sprint 1
 
 | Task / Feature                                   | Time (h) |
 |--------------------------------------------------|:--------:|
 | Git Repository Setup and Spring Boot Integration |   0.5    |
 | Docker Setup                                     |   2.0    |
+| Backend                                          |   4.0    |
 | Small Changes                                    |   0.5    |
 | Additional Use Case                              |   1.0    |
 | Protocol / Project Specification                 |   1.0    |
-| **Subtotal**                                     | **0.0**  |
+| **Subtotal**                                     | **9.0**  |
+
+### Sprint 2
+
+| Task / Feature                                        | Time (h) |
+|-------------------------------------------------------|:--------:|
+| Basic Frontend (Document Cards, API Service, Store)   |   4.0    |
+| Nginx Reverse Proxy + Frontend Dockerfile             |   2.5    |
+| CI/CD ZIP Pipeline                                    |   1.0    |
+| Note Use-Cases in Frontend (Note Modal, Note Service) |   4.0    |
+| Docker Compose Profiles + Small Changes               |   1.0    |
+| Protocol / Project Specification                      |   0.5    |
+| **Subtotal**                                          | **13.0** |
+
+### Sprint 3
+
+| Task / Feature                           | Time (h) |
+|------------------------------------------|:--------:|
+| RabbitMQ Setup                           |   3.5    |
+| Logging in Backend                       |   1.5    |
+| Adjusting Frontend/Backend Tests         |   2.5    |
+| CI Testing Pipeline (Frontend + Backend) |   2.0    |
+| Protocol / Project Specification         |   0.5    |
+| **Subtotal**                             | **10.0** |

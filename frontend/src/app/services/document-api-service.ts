@@ -14,6 +14,19 @@ export class DocumentApiService {
     return this.http.get<PaperlessDocument[]>(this.baseUrl);
   }
 
+  getById(id: string) {
+    return this.http.get<PaperlessDocument>(
+      `${this.baseUrl}/${id}`
+    );
+  }
+
+  update(id: string, document: PaperlessDocument) {
+    return this.http.put<PaperlessDocument>(
+      `${this.baseUrl}/${id}`,
+      document
+    );
+  }
+
   delete(id: string) {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }

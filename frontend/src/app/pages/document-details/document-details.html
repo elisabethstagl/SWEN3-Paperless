@@ -1,0 +1,30 @@
+<div class="page">
+  <app-header></app-header>
+
+  @if (isLoading()) {
+    <p class="status-message">Loading document...</p>
+  } @else if (document(); as document) {
+    <div class="details-layout">
+      <section class="preview-section">
+        <div class="section-heading">
+          <h2>{{ document.filename }}</h2>
+        </div>
+        <div class="preview-container">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <p>PDF preview will appear here</p>
+        </div>
+      </section>
+
+      <div class="right-column">
+        <app-document-metadata
+          [document]="document"
+          (documentUpdated)="onDocumentUpdated($event)">
+        </app-document-metadata>
+
+        <app-document-notes [documentId]="document.id"></app-document-notes>
+      </div>
+    </div>
+  } @else {
+    <p class="status-message">{{ errorMessage() || 'Document not found.' }}</p>
+  }
+</div>

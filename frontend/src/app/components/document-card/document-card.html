@@ -1,4 +1,4 @@
-<mat-card class="document-card" appearance="outlined">
+<mat-card class="document-card" appearance="outlined" (click)="openDocument()">
   {{ document().summary }}
   <div class="card-header">
     <div class="icon-badge">
@@ -13,16 +13,8 @@
   </div>
   <div class="button-container">
     <button class="delete-button" matMiniFab aria-label="Delete document"
-            matTooltip="Delete" (click)="delete.emit(document().id)">
+            matTooltip="Delete" (click)="$event.stopPropagation(); confirmDelete()">
       <mat-icon>delete</mat-icon>
-    </button>
-    <button class="add-note-button" matMiniFab aria-label="Add note"
-            matTooltip="Add Note" (click)="openNoteModal()">
-      <mat-icon>note_add</mat-icon>
-    </button>
-    <button class="download-button" matMiniFab aria-label="Download document"
-            matTooltip="Download">
-      <mat-icon>download</mat-icon>
     </button>
   </div>
 </mat-card>

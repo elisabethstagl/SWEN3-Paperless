@@ -10,6 +10,14 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:4-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
   backend:
     build: ./backend
@@ -19,13 +27,15 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     ports:
       - "8081:8081"
     depends_on:
       - postgres
-    profiles:
-      - full
-      - backend
+      - rabbitmq
   frontend:
     build: ./frontend
     volumes:
@@ -34,8 +44,7 @@ services:
       - "80:80"
     depends_on:
       - backend
-    profiles:
-      - full
+
 
 
 
