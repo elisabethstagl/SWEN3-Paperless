@@ -11,12 +11,14 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
 
+@Slf4j
 @Service
 @Transactional
 public class DocumentService {
@@ -34,6 +36,7 @@ public class DocumentService {
     public List<DocumentDTO> getAllDocuments() {
 
         List<Document> documents = documentRepository.findAll();
+        log.debug("Fetched {} documents", documents.size());
         List<DocumentDTO> documentDTOs = new ArrayList<>();
 
         for (Document document : documents) {
@@ -48,6 +51,7 @@ public class DocumentService {
         Optional<Document> document = documentRepository.findById(id);
 
         if (document.isEmpty()) {
+            log.warn("Document {} not found", id);
             return Optional.empty();
         }
 
@@ -58,6 +62,8 @@ public class DocumentService {
 
         validateFile(file);
 
+        log.info("Uploading file '{}' ({} bytes)", file.getOriginalFilename(), file.getSize());
+
         UUID id = UUID.randomUUID();
 
         DocumentDTO dto = PDFMetadataExtractor.extractMetadata(file);
@@ -66,6 +72,7 @@ public class DocumentService {
         Set<ConstraintViolation<DocumentDTO>> violations = validator.validate(dto);
 
         if (!violations.isEmpty()) {
+            log.warn("Validation failed for '{}': {}", file.getOriginalFilename(), violations);
             throw new ConstraintViolationException(violations);
         }
 
@@ -74,6 +81,7 @@ public class DocumentService {
         document.setId(id);
 
         document = documentRepository.save(document);
+        log.info("Document {} saved", document.getId());
 
         return Optional.of(documentMapper.toDTO(document));
     }
@@ -82,10 +90,12 @@ public class DocumentService {
         Optional<Document> doc = documentRepository.findById(id);
 
         if (doc.isEmpty()) {
+            log.warn("Delete failed: document {} not found", id);
             return false;
         }
 
         documentRepository.delete(doc.get());
+        log.info("Document {} deleted", id);
         return true;
     }
 
@@ -96,6 +106,7 @@ public class DocumentService {
         Optional<Document> existing = documentRepository.findById(id);
 
         if (existing.isEmpty()) {
+            log.warn("Update failed: document {} not found", id);
             return Optional.empty();
         }
 
@@ -103,12 +114,14 @@ public class DocumentService {
                 validator.validate(documentDTO);
 
         if (!violations.isEmpty()) {
+            log.warn("Validation failed for document {}: {}", id, violations);
             throw new ConstraintViolationException(violations);
         }
 
         documentMapper.updateEntity(documentDTO, existing.get());
 
         Document saved = documentRepository.save(existing.get());
+        log.info("Document {} updated", id);
 
         return Optional.of(documentMapper.toDTO(saved));
     }
@@ -117,10 +130,12 @@ public class DocumentService {
 
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
+            log.warn("Upload rejected: file is empty");
             throw new IllegalArgumentException("File must not be empty");
         }
 
         if (!"application/pdf".equals(file.getContentType())) {
+            log.warn("Upload rejected: '{}' has content type {}", file.getOriginalFilename(), file.getContentType());
             throw new IllegalArgumentException("Only PDF files are allowed");
         }
     }
