@@ -20,11 +20,15 @@
         </mat-form-field>
         <div class="note-actions">
           <button matMiniFab type="button" class="save-note-button" aria-label="Save note"
-                  matTooltip="Save note" [disabled]="isSavingNewNote() || !newNoteContent.trim() || newNoteContent.trim().length > 500"
-                  (click)="saveNewNote()"><mat-icon>check</mat-icon></button>
+                  matTooltip="Save note"
+                  [disabled]="isSavingNewNote() || !newNoteContent.trim() || newNoteContent.trim().length > 500"
+                  (click)="saveNewNote()">
+            <mat-icon>check</mat-icon>
+          </button>
           <button matMiniFab type="button" class="cancel-note-button" aria-label="Cancel new note"
                   matTooltip="Cancel" [disabled]="isSavingNewNote()" (click)="cancelAddingNote()">
-            <mat-icon>close</mat-icon></button>
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
       </div>
     }
@@ -42,19 +46,27 @@
           </mat-form-field>
           <div class="note-actions">
             <button matMiniFab type="button" class="save-note-button" aria-label="Save note"
-                    matTooltip="Save note" [disabled]="savingNoteId() === note.id || !noteContent.trim() || noteContent.trim().length > 500"
-                    (click)="saveNote(note)"><mat-icon>check</mat-icon></button>
+                    matTooltip="Save note"
+                    [disabled]="savingNoteId() === note.id || !noteContent.trim() || noteContent.trim().length > 500"
+                    (click)="saveNote(note)">
+              <mat-icon>check</mat-icon>
+            </button>
             <button matMiniFab type="button" class="cancel-note-button" aria-label="Cancel editing"
                     matTooltip="Cancel" [disabled]="savingNoteId() === note.id" (click)="cancelEditingNote()">
-              <mat-icon>close</mat-icon></button>
+              <mat-icon>close</mat-icon>
+            </button>
           </div>
         } @else {
           <p class="note-content">{{ note.content }}</p>
           <div class="note-actions">
             <button matMiniFab type="button" class="edit-note-button" aria-label="Edit note"
-                    matTooltip="Edit note" (click)="startEditingNote(note)"><mat-icon>edit</mat-icon></button>
+                    matTooltip="Edit note" (click)="startEditingNote(note)">
+              <mat-icon>edit</mat-icon>
+            </button>
             <button matMiniFab type="button" class="delete-note-button" aria-label="Delete note"
-                    matTooltip="Delete note" (click)="deleteNote(note)"><mat-icon>delete</mat-icon></button>
+                    matTooltip="Delete note" (click)="deleteNote(note)">
+              <mat-icon>delete</mat-icon>
+            </button>
           </div>
         }
       </div>
@@ -64,8 +76,4 @@
       }
     }
   </div>
-
-  @if (errorMessage()) {
-    <p class="error-message">{{ errorMessage() }}</p>
-  }
 </section>

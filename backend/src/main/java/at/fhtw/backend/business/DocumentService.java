@@ -27,6 +27,8 @@ public class DocumentService {
     private final DocumentMapper documentMapper;
     private final Validator validator;
 
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+
     public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper, Validator validator) {
         this.documentRepository = documentRepository;
         this.documentMapper = documentMapper;
@@ -137,6 +139,13 @@ public class DocumentService {
         if (!"application/pdf".equals(file.getContentType())) {
             log.warn("Upload rejected: '{}' has content type {}", file.getOriginalFilename(), file.getContentType());
             throw new IllegalArgumentException("Only PDF files are allowed");
+        }
+
+        if (file.getSize() > MAX_FILE_SIZE) {
+            log.warn("Upload rejected: file exceeds 10 MB");
+            throw new IllegalArgumentException(
+                    "File size must not exceed 10 MB"
+            );
         }
     }
 

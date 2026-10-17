@@ -24,7 +24,17 @@
     @if (isEditing()) {
       <mat-form-field appearance="outline">
         <mat-label>Filename</mat-label>
+
         <input matInput formControlName="filename">
+
+        @if (form.controls.filename.hasError('required') ||
+        form.controls.filename.hasError('pattern')) {
+          <mat-error>Filename must not be empty</mat-error>
+        }
+
+        @if (form.controls.filename.hasError('maxlength')) {
+          <mat-error>Maximum 255 characters allowed</mat-error>
+        }
       </mat-form-field>
     } @else {
       <div class="display-field">
@@ -37,6 +47,10 @@
       <mat-form-field appearance="outline">
         <mat-label>Author</mat-label>
         <input matInput formControlName="author">
+
+        @if (form.controls.author.hasError('maxlength')) {
+          <mat-error>Maximum 100 characters allowed</mat-error>
+        }
       </mat-form-field>
     } @else {
       <div class="display-field">
@@ -49,6 +63,10 @@
       <mat-form-field appearance="outline">
         <mat-label>Creator</mat-label>
         <input matInput formControlName="creator">
+
+        @if (form.controls.creator.hasError('maxlength')) {
+          <mat-error>Maximum 100 characters allowed</mat-error>
+        }
       </mat-form-field>
     } @else {
       <div class="display-field">
@@ -72,8 +90,4 @@
       <p class="summary-content">{{ document().summary || 'No summary available yet.' }}</p>
     </div>
   </div>
-
-  @if (errorMessage()) {
-    <p class="error-message">{{ errorMessage() }}</p>
-  }
 </section>

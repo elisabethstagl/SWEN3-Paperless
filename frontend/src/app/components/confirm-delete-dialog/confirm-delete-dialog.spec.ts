@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NoteModal } from './note-modal';
+import { ConfirmDeleteDialog } from './confirm-delete-dialog';
 
-describe('NoteModal', () => {
-  let component: NoteModal;
-  let fixture: ComponentFixture<NoteModal>;
+describe('ConfirmDeleteDialog', () => {
+  let component: ConfirmDeleteDialog;
+  let fixture: ComponentFixture<ConfirmDeleteDialog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NoteModal],
+      imports: [ConfirmDeleteDialog],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NoteModal);
+    fixture = TestBed.createComponent(ConfirmDeleteDialog);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

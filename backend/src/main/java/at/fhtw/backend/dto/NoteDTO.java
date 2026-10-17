@@ -15,9 +15,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class NoteDTO {
 
-    UUID id;
+    private UUID id;
 
     @NotBlank(message = "Content must not be empty")
     @Size(max = 500, message = "Content must not exceed 500 characters")
-    String content;
+    private String content;
 }
