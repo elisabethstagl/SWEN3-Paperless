@@ -3,7 +3,6 @@ import { PaperlessDocument } from '../../models/paperless-document';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { NoteModal } from '../note-modal/note-modal';
 import { MatDialog } from '@angular/material/dialog';
 
 import {MatTooltip} from '@angular/material/tooltip';
@@ -24,14 +23,6 @@ export class DocumentCard {
 
   openDocument(): void {
     this.router.navigate(['/document-details', this.document().id]);
-  }
-
-  openNoteModal() {
-    this.dialog.open(NoteModal, {
-      width: '600px',
-      maxHeight: '80vh',
-      data: this.document(),
-    });
   }
 
 }
