@@ -1,22 +1,27 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 
 import { DocumentDetails } from './document-details';
 
 describe('DocumentDetails', () => {
-  let component: DocumentDetails;
-  let fixture: ComponentFixture<DocumentDetails>;
+  it('loads the document from the route id and shows it', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([{ path: 'document-details/:id', component: DocumentDetails }]),
+      ],
+    });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [DocumentDetails],
-    }).compileComponents();
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/document-details/1', DocumentDetails);
 
-    fixture = TestBed.createComponent(DocumentDetails);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
+    TestBed.inject(HttpTestingController).expectOne('/api/documents/1').flush({ id: '1', filename: 'invoice.pdf', notes: [] });
+    await harness.fixture.whenStable();
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(harness.routeNativeElement?.textContent).toContain('invoice.pdf');
   });
 });
