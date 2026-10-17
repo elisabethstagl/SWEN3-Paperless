@@ -30,8 +30,9 @@ Paperless is a document management system that allows users to upload, manage, s
 | Bruno / Postman | Manual REST API testing |
 | Angular | Frontend framework |
 | Angular Material | UI components, dialogs, and notifications |
+| RabbitMQ | Message queue |
 
-Additional technologies such as RabbitMQ, MinIO, Elasticsearch, OCR, and GenAI will be integrated in later sprints.
+Additional technologies such as MinIO, Elasticsearch, OCR, and GenAI will be integrated in later sprints.
 
 ---
 
@@ -248,6 +249,16 @@ These tests verify:
 - conversion from DTOs to entities
 - update mappings
 - fields that are intentionally ignored during mapping
+---
+
+# Messaging (RabbitMQ)
+
+The project currently contains a basic RabbitMQ integration running in its own container.
+
+Existing queues: `ocr.request`, `ocr.result`, `genai.request`, `genai.result`.
+
+When a document is uploaded, its ID is sent to the `ocr.request` queue. For now, a `DocumentMessageConsumer` in the backend reads from this queue and logs the message.
+
 ---
 
 # Additional Use Case
