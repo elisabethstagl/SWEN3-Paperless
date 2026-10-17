@@ -5,6 +5,7 @@ import at.fhtw.backend.dto.NoteDTO;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.mapper.DocumentMapper;
+import at.fhtw.backend.messaging.DocumentMessageProducer;
 import at.fhtw.backend.model.Note;
 import at.fhtw.backend.persistence.DocumentRepository;
 import jakarta.transaction.Transactional;
@@ -24,11 +25,14 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final DocumentMapper documentMapper;
     private final Validator validator;
+    private final DocumentMessageProducer documentMessageProducer;
 
-    public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper, Validator validator) {
+    public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper, Validator validator,
+                           DocumentMessageProducer documentMessageProducer) {
         this.documentRepository = documentRepository;
         this.documentMapper = documentMapper;
         this.validator = validator;
+        this.documentMessageProducer = documentMessageProducer;
     }
 
     public List<DocumentDTO> getAllDocuments() {
@@ -74,6 +78,8 @@ public class DocumentService {
         document.setId(id);
 
         document = documentRepository.save(document);
+
+        documentMessageProducer.sendOcrRequest(document.getId());
 
         return Optional.of(documentMapper.toDTO(document));
     }
