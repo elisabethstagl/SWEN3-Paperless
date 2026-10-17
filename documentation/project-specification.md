@@ -28,6 +28,8 @@ Paperless is a document management system that allows users to upload, manage, s
 | iText | PDF metadata extraction |
 | Lombok | Reduction of Java boilerplate |
 | Bruno / Postman | Manual REST API testing |
+| Angular | Frontend framework |
+| Angular Material | UI components, dialogs, and notifications |
 
 Additional technologies such as RabbitMQ, MinIO, Elasticsearch, OCR, and GenAI will be integrated in later sprints.
 
@@ -79,7 +81,11 @@ From the project root directory, start the complete application and its required
 docker compose up -d
 ```
 
-This builds the required Docker images and starts all services in detached mode.
+This starts all required containers, including the Angular frontend, Spring Boot backend, and PostgreSQL database.
+
+Once the containers are running, the application is available at:
+- Frontend: http://localhost
+- Backend REST API: http://localhost:8081/api/documents
 
 ### 3. Test the REST API
 
@@ -132,6 +138,67 @@ Base path:
 | `PUT` | `/api/documents/{documentId}/notes/{noteId}`  | Update a note |
 | `DELETE` | `/api/documents/{documentId}/notes/{noteId}` | Delete a note |
 
+
+---
+
+# Frontend
+
+The application includes an Angular frontend that provides a user-friendly interface for managing PDF documents and their associated notes.
+
+Angular Material is used for UI components such as cards, buttons, tooltips, dialogs, and snackbars.
+
+## Features
+
+- **Document Overview:** Display uploaded documents in a card-based layout.
+- **PDF Upload:** Upload PDF documents with client-side validation.
+- **Document Details:** View document information and associated notes.
+- **Note Management:** Create, view, edit, and delete notes associated with documents.
+
+## Frontend Architecture
+
+The frontend is organized into components, services, and models.
+
+- **Components:** Handle the user interface and user interactions.
+- **API Services:** Communicate with the Spring Boot REST API.
+- **DocumentStore:** Manages document state using Angular Signals.
+- **NotificationService:** Provides consistent success and error messages throughout the application.
+
+The frontend communicates with the backend through HTTP requests.
+
+
+---
+
+# Validation and Error Handling
+
+The application implements validation on both the frontend and backend to prevent invalid data from being processed.
+
+## Document Validation
+
+- Only PDF files are accepted for upload.
+- The maximum upload size is 10 MB.
+- Document metadata is validated using Jakarta Bean Validation.
+- Required fields must not be empty.
+- Text fields are restricted to their configured maximum lengths.
+- The number of pages must be at least 1.
+
+## Note Validation
+
+- Notes must not be empty or contain only whitespace.
+- Notes are limited to a maximum of 500 characters.
+- Validation is applied when creating and updating notes.
+- The backend validates incoming requests using `@Valid`, `@NotBlank`, and `@Size`.
+
+## Error Handling
+
+The Spring Boot backend uses a global exception handler to return appropriate HTTP status codes and error responses.
+
+Examples include:
+
+- `400 Bad Request` for invalid input.
+- `404 Not Found` for resources that do not exist.
+- `413 Payload Too Large` for files exceeding the upload size limit.
+
+The Angular frontend displays feedback through Angular Material snackbars. Successful operations are indicated by success messages, while failed operations display error messages.
 
 ---
 
@@ -224,6 +291,11 @@ We plan to add automated testing, linting, and other checks to our CI/CD pipelin
 ---
 # Lessons Learned 
 
+During this project, we learned how important good organization and a clear project structure are when working in a team. Clear responsibilities and regular communication help everyone stay informed and make collaboration more efficient.
+
+Using GitHub Issues, Pull Requests, and a Kanban board made it easier to organize tasks, track progress, and keep an overview of the current project status. This also helped us understand what other team members were working on.
+
+Another important lesson was the importance of validation and user feedback. Validation helps prevent invalid data and unexpected errors, while clear success and error messages allow users to understand what is happening in the application. Features such as notifications and confirmation dialogs make the application more user-friendly and easier to use.
 
 ---
 
@@ -246,15 +318,16 @@ We plan to add automated testing, linting, and other checks to our CI/CD pipelin
 
 ### Sprint 2
 
-| Task / Feature                   | Time (h) |
-|----------------------------------|:--------:|
-| Frontend Setup + Styling         |   3.0    |
-| Frontend Styling                 |   2.0    |
-| Validation + Styling             |   5.5    |
-| Changed Document Update method   |   1.0    |
-| Detail page                      |   0.0    |
-| Protocol / Project Specification |   1.0    |
-| **Subtotal**                     | **0.0**  |
+| Task / Feature                        | Time (h) |
+|---------------------------------------|:--------:|
+| Frontend Setup + Styling              |   3.0    |
+| Frontend Styling                      |   2.0    |
+| Validation + Styling                  |   5.5    |
+| Changed Document Update method        |   1.0    |
+| Detail page                           |   3.0    |
+| More validation + snackbar and dialog |   3.5    |
+| Protocol / Project Specification      |   1.5    |
+| **Subtotal**                          | **19.5** |
 
 ### Sprint 3
 

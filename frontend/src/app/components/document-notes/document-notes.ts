@@ -1,11 +1,15 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import {Component, inject, input, OnInit, signal} from '@angular/core';
+import {MatIconModule} from '@angular/material/icon';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {NoteApiService} from '../../services/note-api-service';
 import {Note} from '../../models/paperless-note';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmDeleteDialog} from '../confirm-delete-dialog/confirm-delete-dialog';
+import {NotificationService} from '../../services/notification-service';
+import {HttpErrorResponse} from '@angular/common/http';
 
 
 @Component({
@@ -23,7 +27,9 @@ export class DocumentNotes implements OnInit {
   readonly savingNoteId = signal<string | null>(null);
   readonly isAddingNote = signal(false);
   readonly isSavingNewNote = signal(false);
-  readonly errorMessage = signal('');
+
+  private readonly dialog = inject(MatDialog);
+  private readonly notificationService = inject(NotificationService);
 
   noteContent = '';
   newNoteContent = '';
@@ -34,11 +40,18 @@ export class DocumentNotes implements OnInit {
 
   loadNotes(): void {
     this.noteApi.getAll(this.documentId()).subscribe({
-      next: notes => this.notes.set(notes),
-      error: error => {
-        console.error('Failed to load notes:', error);
-        this.errorMessage.set('Could not load notes.');
+      next: notes => {
+        this.notes.set(notes);
       },
+
+      error: (error: HttpErrorResponse) => {
+        console.error('Failed to load notes:', error);
+
+        this.notificationService.showHttpError(
+          error,
+          'Could not load notes'
+        );
+      }
     });
   }
 
@@ -53,34 +66,84 @@ export class DocumentNotes implements OnInit {
   }
 
   saveNote(note: Note): void {
+    if (
+      this.savingNoteId() !== null ||
+      !this.noteContent.trim() ||
+      this.noteContent.length > 500
+    ) {
+      return;
+    }
+
     const content = this.noteContent.trim();
-    if (this.savingNoteId() || !content || content.length > 500) return;
+
     this.savingNoteId.set(note.id);
-    this.errorMessage.set('');
+
     this.noteApi.update(this.documentId(), note.id, content).subscribe({
       next: updatedNote => {
-        this.notes.update(notes => notes.map(existing => existing.id === note.id ? updatedNote : existing));
+        this.notes.update(notes =>
+          notes.map(existing =>
+            existing.id === note.id ? updatedNote : existing
+          )
+        );
+
         this.cancelEditingNote();
         this.savingNoteId.set(null);
+
+        this.notificationService.showSuccess(
+          'Note updated successfully'
+        );
       },
-      error: error => {
+
+      error: (error: HttpErrorResponse) => {
         console.error('Failed to save note:', error);
-        this.errorMessage.set('Could not save note.');
         this.savingNoteId.set(null);
-      },
+
+        this.notificationService.showHttpError(
+          error,
+          'Could not save note'
+        );
+      }
     });
   }
 
   deleteNote(note: Note): void {
-    this.noteApi.delete(this.documentId(), note.id).subscribe({
-      next: () => {
-        this.notes.update(notes => notes.filter(existing => existing.id !== note.id));
-        if (this.editingNoteId() === note.id) this.cancelEditingNote();
-      },
-      error: error => {
-        console.error('Failed to delete note:', error);
-        this.errorMessage.set('Could not delete note.');
-      },
+    const dialogRef = this.dialog.open(ConfirmDeleteDialog, {
+      width: '400px',
+      maxWidth: '90vw',
+      data: {
+        itemType: 'note'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed !== true) {
+        return;
+      }
+
+      this.noteApi.delete(this.documentId(), note.id).subscribe({
+        next: () => {
+          this.notes.update(notes =>
+            notes.filter(existing => existing.id !== note.id)
+          );
+
+          if (this.editingNoteId() === note.id) {
+            this.cancelEditingNote();
+          }
+
+          this.notificationService.showSuccess(
+            'Note deleted successfully'
+          );
+        },
+
+        error: (error: HttpErrorResponse) => {
+          console.error('Failed to delete note:', error);
+
+          this.notificationService.showHttpError(
+            error,
+            'Could not delete note'
+          );
+        }
+      });
     });
   }
 
@@ -95,21 +158,38 @@ export class DocumentNotes implements OnInit {
   }
 
   saveNewNote(): void {
+    if (
+      this.isSavingNewNote() ||
+      !this.newNoteContent.trim() ||
+      this.newNoteContent.length > 500
+    ) {
+      return;
+    }
+
     const content = this.newNoteContent.trim();
-    if (!content || content.length > 500 || this.isSavingNewNote()) return;
+
     this.isSavingNewNote.set(true);
-    this.errorMessage.set('');
+
     this.noteApi.add(this.documentId(), content).subscribe({
       next: note => {
         this.notes.update(notes => [...notes, note]);
         this.cancelAddingNote();
         this.isSavingNewNote.set(false);
+
+        this.notificationService.showSuccess(
+          'Note added successfully'
+        );
       },
-      error: error => {
+
+      error: (error: HttpErrorResponse) => {
         console.error('Failed to add note:', error);
-        this.errorMessage.set('Could not add note.');
         this.isSavingNewNote.set(false);
-      },
+
+        this.notificationService.showHttpError(
+          error,
+          'Could not add note'
+        );
+      }
     });
   }
 }
