@@ -60,12 +60,9 @@ public class NoteService {
         return Optional.of(noteMapper.toDTO(note.get()));
     }
 
-    public Optional<NoteDTO> addNote(
-            UUID documentId,
-            NoteDTO noteDTO) {
+    public Optional<NoteDTO> addNote(UUID documentId, NoteDTO noteDTO) {
 
-        Optional<Document> doc =
-                documentRepository.findById(documentId);
+        Optional<Document> doc = documentRepository.findById(documentId);
 
         if (doc.isEmpty()) {
             log.warn("Add note failed: document {} not found", documentId);
@@ -83,10 +80,7 @@ public class NoteService {
         return Optional.of(noteMapper.toDTO(savedNote));
     }
 
-    public Optional<NoteDTO> updateNote(
-            UUID documentId,
-            UUID noteId,
-            NoteDTO noteDTO) {
+    public Optional<NoteDTO> updateNote(UUID documentId, UUID noteId, NoteDTO noteDTO) {
 
         Optional<Note> note = noteRepository.findById(noteId);
 

@@ -28,9 +28,7 @@ public class NoteController {
     }
 
     @GetMapping("/{noteId}")
-    public ResponseEntity<NoteDTO> getNoteById(
-            @PathVariable UUID documentId,
-            @PathVariable UUID noteId) {
+    public ResponseEntity<NoteDTO> getNoteById(@PathVariable UUID documentId, @PathVariable UUID noteId) {
 
         Optional<NoteDTO> note =
                 noteService.getNoteById(documentId, noteId);
@@ -48,10 +46,7 @@ public class NoteController {
         Optional<NoteDTO> createdNote = noteService.addNote(documentId, note);
 
         if (createdNote.isPresent()) {
-            return new ResponseEntity<>(
-                    createdNote.get(),
-                    HttpStatus.CREATED
-            );
+            return new ResponseEntity<>(createdNote.get(), HttpStatus.CREATED);
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
