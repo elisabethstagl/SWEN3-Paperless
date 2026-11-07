@@ -20,6 +20,10 @@ export class DocumentApiService {
     );
   }
 
+  getFile(id: string) {
+    return this.http.get(`${this.baseUrl}/${id}/file`, { responseType: 'blob' });
+  }
+
   update(id: string, document: PaperlessDocument) {
     return this.http.put<PaperlessDocument>(
       `${this.baseUrl}/${id}`,

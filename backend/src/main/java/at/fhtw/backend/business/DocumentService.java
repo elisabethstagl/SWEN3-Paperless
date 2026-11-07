@@ -8,6 +8,7 @@ import at.fhtw.backend.mapper.DocumentMapper;
 import at.fhtw.backend.messaging.DocumentMessageProducer;
 import at.fhtw.backend.model.Note;
 import at.fhtw.backend.persistence.DocumentRepository;
+import at.fhtw.backend.persistence.MinIORepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 @Slf4j
@@ -28,16 +30,18 @@ public class DocumentService {
     private final DocumentMapper documentMapper;
     private final Validator validator;
     private final DocumentMessageProducer documentMessageProducer;
+    private final MinIORepository minIORepository;
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper, Validator validator,
-                           DocumentMessageProducer documentMessageProducer) {
-      
+                           DocumentMessageProducer documentMessageProducer, MinIORepository minIORepository) {
+
         this.documentRepository = documentRepository;
         this.documentMapper = documentMapper;
         this.validator = validator;
         this.documentMessageProducer = documentMessageProducer;
+        this.minIORepository = minIORepository;
     }
 
     public List<DocumentDTO> getAllDocuments() {
@@ -65,6 +69,19 @@ public class DocumentService {
         return Optional.of(documentMapper.toDTO(document.get()));
     }
 
+    public Optional<InputStream> getDocumentFile(UUID id) {
+        if (!documentRepository.existsById(id)) {
+            log.warn("File request failed: document {} not found", id);
+            return Optional.empty();
+        }
+
+        Optional<InputStream> file = Optional.of(minIORepository.load(id));
+        if (file.isEmpty()) {
+            log.warn("File for document {} not found in storage", id);
+        }
+        return file;
+    }
+
     public Optional<DocumentDTO> upload(MultipartFile file) throws IOException {
 
         validateFile(file);
@@ -90,6 +107,8 @@ public class DocumentService {
         document = documentRepository.save(document);
         log.info("Document {} saved", document.getId());
 
+        minIORepository.save(file.getInputStream(), id);
+
         documentMessageProducer.sendOcrRequest(document.getId());
 
         return Optional.of(documentMapper.toDTO(document));
@@ -104,6 +123,7 @@ public class DocumentService {
         }
 
         documentRepository.delete(doc.get());
+        minIORepository.delete(id);
         log.info("Document {} deleted", id);
         return true;
     }

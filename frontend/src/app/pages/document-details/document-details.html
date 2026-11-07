@@ -8,11 +8,21 @@
       <section class="preview-section">
         <div class="section-heading">
           <h2>{{ document.filename }}</h2>
+          @if (fileUrl(); as url) {
+            <a matMiniFab class="download-button" [href]="url" [download]="document.filename"
+               aria-label="Download document" matTooltip="Download">
+              <mat-icon>download</mat-icon>
+            </a>
+          }
         </div>
-        <div class="preview-container">
-          <mat-icon>picture_as_pdf</mat-icon>
-          <p>PDF preview will appear here</p>
-        </div>
+        @if (fileUrl(); as url) {
+          <iframe class="preview-frame" [src]="url" [title]="document.filename"></iframe>
+        } @else {
+          <div class="preview-container">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <p>{{ previewError() ? 'Preview not available' : 'Loading preview...' }}</p>
+          </div>
+        }
       </section>
 
       <div class="right-column">

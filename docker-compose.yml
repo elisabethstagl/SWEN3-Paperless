@@ -35,11 +35,15 @@ services:
       OCR_RESULT_QUEUE: ${OCR_RESULT_QUEUE}
       GENAI_REQUEST_QUEUE: ${GENAI_REQUEST_QUEUE}
       GENAI_RESULT_QUEUE: ${GENAI_RESULT_QUEUE}
+      MINIO_URL: http://minio:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
       - "8081:8081"
     depends_on:
       - postgres
       - rabbitmq
+      - minio
 
   ocr-worker:
     build: ./ocr-worker
@@ -62,8 +66,24 @@ services:
       - backend
 
 
+  minio:
+    image: elestio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server --address ":9000" --console-address ":9001" /data
+
+
+
 
 
 volumes:
   postgres-data:
+  minio-data:
 
