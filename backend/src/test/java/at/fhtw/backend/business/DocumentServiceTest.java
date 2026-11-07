@@ -4,6 +4,7 @@ import at.fhtw.backend.mapper.DocumentMapper;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.persistence.DocumentRepository;
+import at.fhtw.backend.persistence.MinIORepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,6 +26,9 @@ class DocumentServiceTest {
 
     @Mock
     private DocumentMapper documentMapper;
+
+    @Mock
+    private MinIORepository minIORepository;
 
     @InjectMocks
     private DocumentService documentService;
@@ -138,6 +142,7 @@ class DocumentServiceTest {
 
         verify(documentRepository).findById(id);
         verify(documentRepository).delete(document);
+        verify(minIORepository).delete(id);
     }
 
     @Test
