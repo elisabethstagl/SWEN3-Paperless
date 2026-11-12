@@ -2,7 +2,7 @@
 
 Semester project for **Software Engineering 3 (SWEN3)** at FH Technikum Wien.
 
-Paperless is a document management system that allows users to upload, manage, search, and process PDF documents. Documents are persisted in PostgreSQL and will later be processed using OCR, full-text search, and AI-generated summaries.
+Paperless is a document management system that allows users to upload, manage, search, and process PDF documents. Document metadata is stored in PostgreSQL, while PDF files and OCR results are stored in MinIO. Uploaded documents are automatically processed using OCR. Full-text search and AI-generated summaries are planned for future development.
 
 ### Team members:
 * Jandl Maximilian
@@ -31,7 +31,22 @@ Paperless is a document management system that allows users to upload, manage, s
 | Angular | Frontend framework |
 | Angular Material | UI components, dialogs, and notifications |
 
-Additional technologies such as RabbitMQ, MinIO, Elasticsearch, OCR, and GenAI will be integrated in later sprints.
+## Additional Technologies
+
+The following technologies have been integrated into the project:
+
+| Technology | Purpose |
+|---|---|
+| RabbitMQ | Asynchronous communication between backend and workers |
+| MinIO | Object storage for PDF documents and OCR results |
+| Python | Programming language for the OCR worker |
+| Tesseract OCR | Optical character recognition |
+| pytesseract | Python interface for Tesseract |
+| pdf2image | Conversion of PDF pages into images |
+| Pika | RabbitMQ communication in Python |
+| Poppler | PDF rendering for OCR processing |
+
+Elasticsearch and GenAI are planned for future development.
 
 ---
 
@@ -41,15 +56,33 @@ Additional technologies such as RabbitMQ, MinIO, Elasticsearch, OCR, and GenAI w
 
 The backend structure shown below represents the current state of the project.
 ```text
-backend/src/main/java/at/fhtw/backend/
-├── business/               # Business logic / services
-├── dto/                    # DTOs
-├── mapper/                 # Mappers (using MapStruct)
-├── presentation/           # REST controllers
-├── model/                  # JPA entities
-├── persistence/            # Data Access Layer / repositories
-└── BackendApplication.java
+SWEN3-Paperless/
+├── backend/
+│   └── src/main/
+│       ├── java/at/fhtw/backend/
+│       │   ├── business/
+│       │   │   └── DocumentService.java
+│       │   ├── dto/
+│       │   ├── mapper/
+│       │   ├── messaging/
+│       │   │   ├── DocumentMessageProducer.java
+│       │   │   ├── OcrResultListener.java
+│       │   │   └── OcrResultMessage.java
+│       │   ├── model/
+│       │   ├── persistence/
+│       │   │   └── MinIORepository.java
+│       │   └── presentation/
+│       └── resources/
+│           └── application.properties
+├── frontend/
+├── ocr-worker/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── worker.py
+├── docker-compose.yml
+└── .env.example
 ```
+
 ---
 
 ## Configuration
@@ -81,7 +114,7 @@ From the project root directory, start the complete application and its required
 docker compose up -d
 ```
 
-This starts all required containers, including the Angular frontend, Spring Boot backend, and PostgreSQL database.
+This starts all required containers, including the Angular frontend, Spring Boot backend, PostgreSQL database, RabbitMQ message broker, MinIO object storage, and Python OCR worker.
 
 Once the containers are running, the application is available at:
 - Frontend: http://localhost
@@ -199,6 +232,33 @@ Examples include:
 - `413 Payload Too Large` for files exceeding the upload size limit.
 
 The Angular frontend displays feedback through Angular Material snackbars. Successful operations are indicated by success messages, while failed operations display error messages.
+
+---
+
+
+## OCR Worker
+
+The application includes a Python-based OCR worker that automatically extracts text from uploaded PDF documents using Tesseract OCR. The worker runs as a separate Docker container and processes documents independently of the Spring Boot backend.
+
+When a PDF is uploaded, the backend stores the document metadata in PostgreSQL and the original PDF in MinIO. An OCR request is then sent to RabbitMQ, where it is picked up by the OCR worker.
+
+The worker downloads the PDF from MinIO and converts its pages into images using `pdf2image`. Tesseract OCR processes these images and extracts the text in German and English. Once the processing is complete, the extracted text is sent back to the backend through RabbitMQ.
+
+The backend receives the result and stores the recognized text in MinIO as a separate `.txt` file using the same document UUID. This allows the original PDF and its extracted text to be stored independently.
+
+## RabbitMQ
+
+RabbitMQ is used as a message broker to enable asynchronous communication between the Spring Boot backend and the OCR worker. This means that OCR processing can happen in the background without blocking the document upload process.
+
+The communication uses two main queues:
+
+- **`ocr.request`:** The backend sends the document UUID to this queue after a PDF has been uploaded. The OCR worker receives the request and starts processing the document.
+- **`ocr.result`:** After text extraction, the worker sends the document UUID and recognized text to this queue. The backend receives the result using a Spring AMQP `@RabbitListener` and saves the text in MinIO.
+
+RabbitMQ separates the backend from the OCR worker, allowing both services to communicate without directly calling each other. Messages can also remain in the queues until a consumer is available.
+
+Additionally, the queues `genai.request` and `genai.result` are configured for future AI-based document processing.
+
 
 ---
 
@@ -333,7 +393,17 @@ Another important lesson was the importance of validation and user feedback. Val
 
 | Task / Feature                   | Time (h) |
 |----------------------------------|:--------:|
-| Protocol / Project Specification |   0.0    |
+| OCR-Worker initial setup         |   2.5    |
+| Protocol / Project Specification |   0.5    |
+| **Subtotal**                     | **3.0**  |
+
+### Sprint 4
+
+| Task / Feature                   | Time (h) |
+|----------------------------------|:--------:|
+| OCR-Worker                       |   4.5    |
+| Elastic Search                   |   0.0    |
+| Protocol / Project Specification |   1.0    |
 | **Subtotal**                     | **0.0**  |
 
 ## Maximilian Jandl
