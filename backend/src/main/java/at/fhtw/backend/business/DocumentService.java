@@ -1,12 +1,10 @@
 package at.fhtw.backend.business;
 
 import at.fhtw.backend.PDFMetadataExtractor;
-import at.fhtw.backend.dto.NoteDTO;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.mapper.DocumentMapper;
 import at.fhtw.backend.messaging.DocumentMessageProducer;
-import at.fhtw.backend.model.Note;
 import at.fhtw.backend.persistence.DocumentRepository;
 import at.fhtw.backend.persistence.MinIORepository;
 import jakarta.transaction.Transactional;
@@ -112,6 +110,18 @@ public class DocumentService {
         documentMessageProducer.sendOcrRequest(document.getId());
 
         return Optional.of(documentMapper.toDTO(document));
+    }
+
+    public void saveContent(UUID id, String content) {
+        Optional<Document> document = documentRepository.findById(id);
+
+        if (document.isEmpty()) {
+            log.warn("OCR result discarded: document {} not found", id);
+            return;
+        }
+
+        minIORepository.saveText(id, content);
+        log.info("Content of document {} saved", id);
     }
 
     public boolean deleteDocument(UUID id) {
