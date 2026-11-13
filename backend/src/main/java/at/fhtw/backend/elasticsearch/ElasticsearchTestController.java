@@ -1,5 +1,5 @@
 
-package at.fhtw.backend.presentation;
+package at.fhtw.backend.elasticsearch;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.springframework.web.bind.annotation.GetMapping;
