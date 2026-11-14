@@ -1,6 +1,8 @@
 package at.fhtw.backend.business;
 
 import at.fhtw.backend.PDFMetadataExtractor;
+import at.fhtw.backend.elasticsearch.DocumentIndex;
+import at.fhtw.backend.elasticsearch.DocumentSearchService;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.mapper.DocumentMapper;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -29,17 +32,20 @@ public class DocumentService {
     private final Validator validator;
     private final DocumentMessageProducer documentMessageProducer;
     private final MinIORepository minIORepository;
+    private final DocumentSearchService documentSearchService;
+
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper, Validator validator,
-                           DocumentMessageProducer documentMessageProducer, MinIORepository minIORepository) {
+                           DocumentMessageProducer documentMessageProducer, MinIORepository minIORepository, DocumentSearchService documentSearchService) {
 
         this.documentRepository = documentRepository;
         this.documentMapper = documentMapper;
         this.validator = validator;
         this.documentMessageProducer = documentMessageProducer;
         this.minIORepository = minIORepository;
+        this.documentSearchService = documentSearchService;
     }
 
     public List<DocumentDTO> getAllDocuments() {
@@ -113,15 +119,41 @@ public class DocumentService {
     }
 
     public void saveContent(UUID id, String content) {
-        Optional<Document> document = documentRepository.findById(id);
+        Optional<Document> documentOptional =
+                documentRepository.findById(id);
 
-        if (document.isEmpty()) {
+        if (documentOptional.isEmpty()) {
             log.warn("OCR result discarded: document {} not found", id);
             return;
         }
 
+        Document document = documentOptional.get();
+
         minIORepository.saveText(id, content);
-        log.info("Content of document {} saved", id);
+        log.info("Content of document {} saved in MinIO", id);
+
+        // 2. Elasticsearch-Dokument erstellen
+        String createdAt = document.getCreatedOn() != null
+                ? document.getCreatedOn().toInstant().toString()
+                : Instant.now().toString();
+
+        DocumentIndex index = new DocumentIndex(
+                document.getId().toString(),
+                document.getFilename(),
+                content,
+                document.getFilename(),
+                createdAt
+        );
+
+        try {
+            documentSearchService.indexDocument(index);
+            log.info("Document {} indexed in Elasticsearch", id);
+        } catch (IOException e) {
+            log.error("Failed to index document {} in Elasticsearch", id, e);
+            throw new IllegalStateException(
+                    "Elasticsearch indexing failed for document " + id, e
+            );
+        }
     }
 
     public boolean deleteDocument(UUID id) {
@@ -132,11 +164,23 @@ public class DocumentService {
             return false;
         }
 
+        try {
+            documentSearchService.deleteDocument(id.toString());
+            log.info("Document {} deleted from Elasticsearch", id);
+        } catch (IOException e) {
+            log.error("Elasticsearch deletion failed for {}", id, e);
+            throw new IllegalStateException(
+                    "Failed to delete document from Elasticsearch", e
+            );
+        }
+
         documentRepository.delete(doc.get());
         minIORepository.delete(id);
         log.info("Document {} deleted", id);
         return true;
     }
+
+
 
     public Optional<DocumentDTO> updateDocument(
             UUID id,
@@ -160,10 +204,77 @@ public class DocumentService {
         documentMapper.updateEntity(documentDTO, existing.get());
 
         Document saved = documentRepository.save(existing.get());
-        log.info("Document {} updated", id);
+        log.info("Document {} updated in PostgreSQL", id);
+
+        try {
+            documentSearchService.updateDocumentMetadata(
+                    id.toString(),
+                    saved.getFilename()
+            );
+
+            log.info("Document {} updated in Elasticsearch", id);
+
+        } catch (IOException e) {
+            log.error("Failed to update document {} in Elasticsearch", id, e);
+
+            throw new IllegalStateException(
+                    "Elasticsearch update failed for document " + id, e
+            );
+        }
 
         return Optional.of(documentMapper.toDTO(saved));
     }
+
+
+    public int reindexAllDocuments() {
+        List<Document> documents = documentRepository.findAll();
+
+        int indexedCount = 0;
+
+        for (Document document : documents) {
+            UUID id = document.getId();
+
+            try {
+                // 1. OCR-Text aus MinIO laden
+                String content = minIORepository.loadText(id);
+
+                // 2. Erstellungsdatum übernehmen
+                String createdAt = document.getCreatedOn() != null
+                        ? document.getCreatedOn()
+                        .toInstant()
+                        .toString()
+                        : Instant.now().toString();
+
+                // 3. Elasticsearch-Dokument erstellen
+                DocumentIndex index = new DocumentIndex(
+                        id.toString(),
+                        document.getFilename(),
+                        content,
+                        document.getFilename(),
+                        createdAt
+                );
+
+                // 4. In Elasticsearch speichern
+                documentSearchService.indexDocument(index);
+
+                indexedCount++;
+
+                log.info("Document {} reindexed successfully", id);
+
+            } catch (Exception e) {
+                log.error("Reindexing failed for document {}", id, e);
+            }
+        }
+
+        log.info(
+                "Reindexing finished: {} of {} documents indexed",
+                indexedCount,
+                documents.size()
+        );
+
+        return indexedCount;
+    }
+
 
     // HELPER
 

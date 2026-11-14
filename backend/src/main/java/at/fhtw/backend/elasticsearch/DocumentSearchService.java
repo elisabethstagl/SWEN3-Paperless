@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -48,4 +49,29 @@ public class DocumentSearchService {
                 .filter(Objects::nonNull)
                 .toList();
     }
+
+
+    public void deleteDocument(String id) throws IOException {
+        client.delete(d -> d
+                .index("paperless-documents")
+                .id(id)
+        );
+    }
+
+
+    public void updateDocumentMetadata(String id, String filename)
+            throws IOException {
+
+        client.update(u -> u
+                        .index("paperless-documents")
+                        .id(id)
+                        .doc(Map.of(
+                                "title", filename,
+                                "fileName", filename
+                        )),
+                DocumentIndex.class
+        );
+    }
+
+
 }

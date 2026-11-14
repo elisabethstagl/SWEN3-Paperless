@@ -1,20 +1,27 @@
 
 package at.fhtw.backend.elasticsearch;
 
+import at.fhtw.backend.business.DocumentService;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/elasticsearch")
 public class DocumentIndexTestController {
 
     private final DocumentSearchService searchService;
+    private final DocumentService documentService;
 
     public DocumentIndexTestController(
-            DocumentSearchService searchService) {
+            DocumentSearchService searchService,
+            DocumentService documentService) {
+
         this.searchService = searchService;
+        this.documentService = documentService;
     }
+
 
     @PostMapping("/index-test")
     public String indexTest() throws IOException {
@@ -38,5 +45,18 @@ public class DocumentIndexTestController {
 
         return searchService.searchDocuments(q);
     }
+
+
+    @PostMapping("/reindex")
+    public Map<String, Object> reindex() {
+
+        int count = documentService.reindexAllDocuments();
+
+        return Map.of(
+                "message", "Reindexing completed",
+                "indexedDocuments", count
+        );
+    }
+
 
 }

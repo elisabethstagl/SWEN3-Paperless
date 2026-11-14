@@ -90,4 +90,24 @@ public class MinIORepository {
         }
     }
 
+    public String loadText(UUID id) {
+        try (InputStream stream = minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(id + ".txt")
+                        .build())) {
+
+            return new String(
+                    stream.readAllBytes(),
+                    StandardCharsets.UTF_8
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to load OCR text for document " + id, e
+            );
+        }
+    }
+
+
 }
