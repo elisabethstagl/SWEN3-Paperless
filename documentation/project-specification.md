@@ -2,7 +2,14 @@
 
 Semester project for **Software Engineering 3 (SWEN3)** at FH Technikum Wien.
 
-Paperless is a document management system that allows users to upload, manage, search, and process PDF documents. Documents are persisted in PostgreSQL and will later be processed using OCR, full-text search, and AI-generated summaries.
+
+Paperless is a document management system that allows users to upload, manage, search, and process PDF documents. Document metadata is stored in PostgreSQL, while PDF files and OCR results are stored in MinIO.
+
+Uploaded documents are automatically processed using OCR. The extracted text is indexed in Elasticsearch, enabling full-text search across all documents as well as searches within individual documents.
+
+The application provides an Angular frontend with a global search bar, document-specific search, and highlighted search results.
+
+AI-generated summaries are planned for future development.
 
 ### Team members:
 * Jandl Maximilian
@@ -32,7 +39,25 @@ Paperless is a document management system that allows users to upload, manage, s
 | Angular Material | UI components, dialogs, and notifications |
 | RabbitMQ | Message queue |
 
-Additional technologies such as MinIO, Elasticsearch, OCR, and GenAI will be integrated in later sprints.
+## Additional Technologies
+
+The following technologies have been integrated into the project:
+
+| Technology | Purpose |
+|---|---|
+| RabbitMQ | Asynchronous communication between backend and workers |
+| MinIO | Object storage for PDF documents and OCR results |
+| Python | Programming language for the OCR worker |
+| Tesseract OCR | Optical character recognition |
+| pytesseract | Python interface for Tesseract |
+| pdf2image | Conversion of PDF pages into images |
+| Pika | RabbitMQ communication in Python |
+| Poppler | PDF rendering for OCR processing |
+| Elasticsearch | Full-text search, document indexing, and search result highlighting |
+| Kibana | Optional interface for inspecting and debugging Elasticsearch data |
+
+
+Generative AI features, such as automatic document summaries, are planned for future development.
 
 ---
 
@@ -42,15 +67,35 @@ Additional technologies such as MinIO, Elasticsearch, OCR, and GenAI will be int
 
 The backend structure shown below represents the current state of the project.
 ```text
-backend/src/main/java/at/fhtw/backend/
-├── business/               # Business logic / services
-├── dto/                    # DTOs
-├── mapper/                 # Mappers (using MapStruct)
-├── presentation/           # REST controllers
-├── model/                  # JPA entities
-├── persistence/            # Data Access Layer / repositories
-└── BackendApplication.java
+SWEN3-Paperless/
+├── backend/
+│   └── src/
+│       ├── main/
+│       │   ├── java/at/fhtw/backend/
+│       │   │   ├── business/
+│       │   │   ├── dto/
+│       │   │   ├── elasticsearch/
+│       │   │   ├── exceptions/
+│       │   │   ├── mapper/
+│       │   │   ├── messaging/
+│       │   │   ├── minIO/
+│       │   │   ├── model/
+│       │   │   ├── persistence/
+│       │   │   ├── presentation/
+│       │   │   ├── BackendApplication.java
+│       │   │   └── PDFMetadataExtractor.java
+│       │   └── resources/
+│       └── test/
+├── frontend/
+├── nginx/
+├── ocr-worker/
+├── .env
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+└── README.md
 ```
+
 ---
 
 ## Configuration
@@ -82,11 +127,16 @@ From the project root directory, start the complete application and its required
 docker compose up -d
 ```
 
-This starts all required containers, including the Angular frontend, Spring Boot backend, and PostgreSQL database.
+
+This starts the application and its configured infrastructure, including the Angular frontend, Spring Boot backend, PostgreSQL database, RabbitMQ message broker, MinIO object storage, Python OCR worker, and Elasticsearch.
+
+Kibana is available as an optional tool for inspecting Elasticsearch indices, testing queries, and debugging search functionality. It is not required for the document management application to work.
 
 Once the containers are running, the application is available at:
+
 - Frontend: http://localhost
 - Backend REST API: http://localhost:8081/api/documents
+- Elasticsearch: http://localhost:9200
 
 ### 3. Test the REST API
 
@@ -140,6 +190,47 @@ Base path:
 | `DELETE` | `/api/documents/{documentId}/notes/{noteId}` | Delete a note |
 
 
+## Elasticsearch Search Endpoints
+
+The backend provides REST endpoints for searching indexed documents and rebuilding the Elasticsearch index.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/elasticsearch/search?q={query}` | Search across indexed documents using document titles and OCR content |
+| `GET` | `/api/elasticsearch/documents/{id}/search?q={query}` | Search within a specific document and return highlighted OCR text excerpts |
+| `POST` | `/api/elasticsearch/reindex` | Reindex existing documents using their metadata and stored OCR text |
+
+### Global Document Search
+
+The global search endpoint searches the Elasticsearch index for matching document titles and OCR content.
+
+Example:
+
+`GET /api/elasticsearch/search?q=Scrum`
+
+The response contains matching documents that can be displayed in the Angular frontend.
+
+### Search Within a Document
+
+The document-specific search endpoint searches the OCR content of a single document identified by its UUID.
+
+Example:
+
+`GET /api/elasticsearch/documents/{id}/search?q=Scrum`
+
+The response contains the document ID and matching text excerpts. Matching terms are marked using `[[HIT]]` and `[[/HIT]]` tags, which the frontend converts into highlighted text.
+
+The number of returned excerpts is configured in the Elasticsearch highlighting settings. A single excerpt may contain multiple matching terms.
+
+### Reindexing
+
+The reindex endpoint rebuilds Elasticsearch entries for existing documents using metadata from PostgreSQL and OCR text stored in MinIO.
+
+This is useful when documents were uploaded before Elasticsearch integration or when the search index needs to be restored.
+
+The reindex endpoint is intended for administrative use and should be access-restricted in a production environment.
+
+
 ---
 
 # Frontend
@@ -148,12 +239,17 @@ The application includes an Angular frontend that provides a user-friendly inter
 
 Angular Material is used for UI components such as cards, buttons, tooltips, dialogs, and snackbars.
 
+
 ## Features
 
 - **Document Overview:** Display uploaded documents in a card-based layout.
 - **PDF Upload:** Upload PDF documents with client-side validation.
-- **Document Details:** View document information and associated notes.
+- **Document Details:** View document information, PDF previews, and associated notes.
 - **Note Management:** Create, view, edit, and delete notes associated with documents.
+- **Global Full-Text Search:** Search across uploaded documents using Elasticsearch.
+- **Document-Specific Search:** Search within the OCR content of an individual PDF document.
+- **Highlighted Search Results:** Display matching OCR text excerpts with highlighted search terms.
+- **Context-Sensitive Search Bar:** The header search bar automatically switches between global search and document-specific search depending on the current page.
 
 ## Frontend Architecture
 
@@ -163,6 +259,12 @@ The frontend is organized into components, services, and models.
 - **API Services:** Communicate with the Spring Boot REST API.
 - **DocumentStore:** Manages document state using Angular Signals.
 - **NotificationService:** Provides consistent success and error messages throughout the application.
+- **DocumentSearchService:** Communicates with the Elasticsearch search endpoints provided by the backend.
+- **DocumentSearchResults:** Displays highlighted OCR text excerpts on the document details page.
+
+Search queries are stored in the URL query parameter `q`, allowing the application to react to changes in the search term.
+
+On the document details page, highlighted search results are displayed next to the PDF preview, above the document metadata. The original PDF remains visible in the preview.
 
 The frontend communicates with the backend through HTTP requests.
 
@@ -203,17 +305,117 @@ The Angular frontend displays feedback through Angular Material snackbars. Succe
 
 ---
 
+
+## OCR Worker
+
+The application includes a Python-based OCR worker that automatically extracts text from uploaded PDF documents using Tesseract OCR. The worker runs as a separate Docker container and processes documents independently of the Spring Boot backend.
+
+When a PDF is uploaded, the backend stores the document metadata in PostgreSQL and the original PDF in MinIO. An OCR request is then sent to RabbitMQ, where it is picked up by the OCR worker.
+
+The worker downloads the PDF from MinIO and converts its pages into images using `pdf2image`. Tesseract OCR processes these images and extracts the text in German and English. Once the processing is complete, the extracted text is sent back to the backend through RabbitMQ.
+
+The backend receives the result and stores the recognized text in MinIO as a separate `.txt` file using the same document UUID. This allows the original PDF and its extracted text to be stored independently.
+
+## RabbitMQ
+
+RabbitMQ is used as a message broker to enable asynchronous communication between the Spring Boot backend and the OCR worker. This means that OCR processing can happen in the background without blocking the document upload process.
+
+The communication uses two main queues:
+
+- **`ocr.request`:** The backend sends the document UUID to this queue after a PDF has been uploaded. The OCR worker receives the request and starts processing the document.
+- **`ocr.result`:** After text extraction, the worker sends the document UUID and recognized text to this queue. The backend receives the result using a Spring AMQP `@RabbitListener` and saves the text in MinIO.
+
+RabbitMQ separates the backend from the OCR worker, allowing both services to communicate without directly calling each other. Messages can also remain in the queues until a consumer is available.
+
+Additionally, the queues `genai.request` and `genai.result` are configured for future AI-based document processing.
+
+---
+
+# Elasticsearch
+
+The application uses Elasticsearch to provide full-text search capabilities for uploaded PDF documents.
+
+Elasticsearch is integrated into the Spring Boot backend using the official Elasticsearch Java client.
+
+## Document Indexing
+
+After a PDF document is uploaded, the OCR worker extracts its text using Tesseract OCR.
+
+The extracted text is sent back to the backend through RabbitMQ and stored in MinIO.
+
+Once the OCR result is available, the backend automatically indexes the document in Elasticsearch.
+
+Each indexed document contains the following information:
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique document identifier (UUID) |
+| `title` | Document title used for searching |
+| `content` | Extracted OCR text |
+| `fileName` | Original PDF filename |
+| `createdAt` | Document creation date |
+
+Documents are stored in the Elasticsearch index `paperless-documents`.
+
+## Full-Text Search
+
+The application supports searching across all indexed documents.
+
+The backend uses an Elasticsearch multi-match query to search the `title` and `content` fields.
+
+The Angular frontend provides a global search bar on the document overview page. Matching documents are displayed as search results.
+
+## Search Within a Document
+
+Users can also search within a specific PDF document.
+
+On the document details page, the search bar searches only the OCR content of the currently selected document.
+
+The backend filters the search by document ID and performs a full-text match query against the `content` field.
+
+Elasticsearch highlighting is used to return text excerpts containing the search terms.
+
+Matching terms are surrounded by special markers:
+
+- `[[HIT]]` marks the beginning of a match.
+- `[[/HIT]]` marks the end of a match.
+
+The Angular frontend processes these markers and displays matching terms with a highlighted background.
+
+Search results are shown in the right column of the document details page, above the document metadata.
+
+The PDF preview itself remains unchanged.
+
+## Document Synchronization
+
+The Elasticsearch index is synchronized with document operations in the backend.
+
+- **OCR Completion:** Extracted text is automatically indexed after OCR processing.
+- **Document Updates:** Relevant document metadata is updated in Elasticsearch.
+- **Document Deletion:** The corresponding Elasticsearch entry is removed when a document is deleted.
+- **Reindexing:** Existing documents can be indexed again using their PostgreSQL metadata and OCR text stored in MinIO.
+
+PostgreSQL and MinIO remain the primary storage systems. Elasticsearch is used as a search index and does not replace either database or object storage.
+
+## Kibana
+
+Kibana is included as an optional development and debugging tool.
+
+It can be used to inspect indexed documents, execute Elasticsearch queries, and analyze search data.
+
+Kibana is not required for normal application operation. The Spring Boot backend communicates directly with Elasticsearch.
+
+
+---
+
 # Testing
 ## Unit Tests
 
-Unit tests are implemented using:
+Backend unit tests are implemented using JUnit and Mockito.
 
-- JUnit
-- Mockito
+External dependencies such as repositories, mappers, MinIO, and the Elasticsearch search service are mocked where appropriate.
 
-The production database is not accessed by the service unit tests. Instead, DocumentRepository, NoteRepository, and the corresponding mappers are mocked.
-
-This allows the business logic to be tested independently of PostgreSQL.
+This allows business logic to be tested without requiring running PostgreSQL, MinIO, or Elasticsearch instances.
 
 ### DocumentService Tests
 
@@ -222,8 +424,10 @@ Current unit tests cover:
 - retrieving all documents
 - retrieving an existing document
 - retrieving a non-existing document
-- deleting an existing document
-- deleting a non-existing document
+- deleting an existing document from PostgreSQL, MinIO, and Elasticsearch
+- ensuring that no deletion is performed for a non-existing document
+
+The Elasticsearch search service is mocked using Mockito, so these tests do not require a running Elasticsearch instance.
 
 ### NoteService Tests
 
@@ -249,6 +453,24 @@ These tests verify:
 - conversion from DTOs to entities
 - update mappings
 - fields that are intentionally ignored during mapping
+
+### Frontend Tests
+
+The Angular frontend uses Vitest for automated component and service tests.
+
+The tests cover components and services such as:
+
+- DocumentContainer
+- DocumentSearchResults
+- DocumentDetails
+- Home
+- DocumentStore
+- DocumentApiService
+
+Angular Router and HTTP dependencies are provided or mocked in the test environment.
+
+These tests verify that components can be created successfully and that selected application functionality behaves as expected.
+
 ---
 
 # Messaging (RabbitMQ)
@@ -291,13 +513,22 @@ For each new feature or issue, we create a separate branch based on development.
 At the end of each sprint, we merge development into main to incorporate all completed features. We also clean up outdated or unused branches to keep the repository organized and maintainable.
 
 
+
 # CI/CD Pipeline
 
-We use GitHub Actions to automate parts of our development workflow. Our current pipeline packages the project into a ZIP archive, making it easier to distribute and access the project files.
+The project uses GitHub Actions to automate build and testing tasks.
 
-The workflow is managed directly through GitHub Actions and helps ensure a consistent packaging process.
+Automated tests are executed as part of the CI workflow to detect errors before changes are integrated.
 
-We plan to add automated testing, linting, and other checks to our CI/CD pipeline in the future to improve code quality and make development easier.
+The backend tests use JUnit and Mockito to verify business logic and repository interactions.
+
+The frontend tests use Vitest to validate Angular components and services.
+
+The pipeline helps detect compilation errors, missing dependencies, and failing tests.
+
+In addition to automated testing, the project includes a workflow for packaging the application into a ZIP archive.
+
+The CI/CD setup supports the team's feature-based branching strategy and Pull Request workflow.
 
 ---
 # Lessons Learned 
@@ -344,8 +575,21 @@ Another important lesson was the importance of validation and user feedback. Val
 
 | Task / Feature                   | Time (h) |
 |----------------------------------|:--------:|
-| Protocol / Project Specification |   0.0    |
-| **Subtotal**                     | **0.0**  |
+| OCR-Worker initial setup         |   2.5    |
+| Protocol / Project Specification |   0.5    |
+| **Subtotal**                     | **3.0**  |
+
+### Sprint 4
+
+| Task / Feature                    | Time (h) |
+|-----------------------------------|:--------:|
+| OCR-Worker                        |   4.5    |
+| Elasticsearch Backend & Docker    |   6.0    |
+| Elasticsearch Frontend, Searchbar |   2.5    |
+| Logstash and Indexing-Worker      |   3.0    |
+| Adjusting Frontend/Backend Tests  |   1.0    |
+| Protocol / Project Specification  |   1.0    |
+| **Subtotal**                      | **18.0** |
 
 ## Maximilian Jandl
 
@@ -383,3 +627,16 @@ Another important lesson was the importance of validation and user feedback. Val
 | CI Testing Pipeline (Frontend + Backend) |   2.0    |
 | Protocol / Project Specification         |   0.5    |
 | **Subtotal**                             | **10.0** |
+
+### Sprint 4
+
+| Task / Feature                               | Time (h) |
+|----------------------------------------------|:--------:|
+| MinIO Setup (Docker, Config, Repository)     |   3.0    |
+| PDF Preview & Download (Backend + Frontend)  |   1.5    |
+| RabbitMQ Integration OCR-Worker + Logging    |   4.5    |
+| Search Debounce in Frontend                  |   1.0    |
+| Kibana & Elasticsearch Logging Configuration |   0.5    |
+| Adjusting Backend Tests (MinIO Mock)         |   1.5    |
+| Protocol / Project Specification             |   0.5    |
+| **Subtotal**                                 | **12.5** |

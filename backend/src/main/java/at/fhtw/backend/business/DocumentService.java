@@ -1,13 +1,13 @@
 package at.fhtw.backend.business;
 
 import at.fhtw.backend.PDFMetadataExtractor;
-import at.fhtw.backend.dto.NoteDTO;
+import at.fhtw.backend.elasticsearch.DocumentIndex;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.mapper.DocumentMapper;
 import at.fhtw.backend.messaging.DocumentMessageProducer;
-import at.fhtw.backend.model.Note;
 import at.fhtw.backend.persistence.DocumentRepository;
+import at.fhtw.backend.persistence.MinIORepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -28,16 +30,18 @@ public class DocumentService {
     private final DocumentMapper documentMapper;
     private final Validator validator;
     private final DocumentMessageProducer documentMessageProducer;
+    private final MinIORepository minIORepository;
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper, Validator validator,
-                           DocumentMessageProducer documentMessageProducer) {
-      
+                           DocumentMessageProducer documentMessageProducer, MinIORepository minIORepository) {
+
         this.documentRepository = documentRepository;
         this.documentMapper = documentMapper;
         this.validator = validator;
         this.documentMessageProducer = documentMessageProducer;
+        this.minIORepository = minIORepository;
     }
 
     public List<DocumentDTO> getAllDocuments() {
@@ -65,6 +69,19 @@ public class DocumentService {
         return Optional.of(documentMapper.toDTO(document.get()));
     }
 
+    public Optional<InputStream> getDocumentFile(UUID id) {
+        if (!documentRepository.existsById(id)) {
+            log.warn("File request failed: document {} not found", id);
+            return Optional.empty();
+        }
+
+        Optional<InputStream> file = Optional.of(minIORepository.load(id));
+        if (file.isEmpty()) {
+            log.warn("File for document {} not found in storage", id);
+        }
+        return file;
+    }
+
     public Optional<DocumentDTO> upload(MultipartFile file) throws IOException {
 
         validateFile(file);
@@ -90,9 +107,41 @@ public class DocumentService {
         document = documentRepository.save(document);
         log.info("Document {} saved", document.getId());
 
+        minIORepository.save(file.getInputStream(), id);
+
         documentMessageProducer.sendOcrRequest(document.getId());
 
         return Optional.of(documentMapper.toDTO(document));
+    }
+
+    public void saveContent(UUID id, String content) {
+        Optional<Document> documentOptional =
+                documentRepository.findById(id);
+
+        if (documentOptional.isEmpty()) {
+            log.warn("OCR result discarded: document {} not found", id);
+            return;
+        }
+
+        Document document = documentOptional.get();
+
+        minIORepository.saveText(id, content);
+        log.info("Content of document {} saved in MinIO", id);
+
+        String createdAt = document.getCreatedOn() != null
+                ? document.getCreatedOn().toInstant().toString()
+                : Instant.now().toString();
+
+        DocumentIndex index = new DocumentIndex(
+                document.getId().toString(),
+                document.getFilename(),
+                content,
+                document.getFilename(),
+                createdAt
+        );
+
+        documentMessageProducer.sendIndexingRequest(index);
+        log.info("Indexing request for document {} sent to RabbitMQ", id);
     }
 
     public boolean deleteDocument(UUID id) {
@@ -103,7 +152,11 @@ public class DocumentService {
             return false;
         }
 
+        documentMessageProducer.sendDeleteRequest(id);
+        log.info("Delete request for document {} sent to RabbitMQ", id);
+
         documentRepository.delete(doc.get());
+        minIORepository.delete(id);
         log.info("Document {} deleted", id);
         return true;
     }
@@ -124,12 +177,93 @@ public class DocumentService {
             throw new ConstraintViolationException(violations);
         }
 
-        documentMapper.updateEntity(documentDTO, existing.get());
+        Document document = existing.get();
 
-        Document saved = documentRepository.save(existing.get());
-        log.info("Document {} updated", id);
+        documentMapper.updateEntity(documentDTO, document);
+
+        Document saved = documentRepository.save(document);
+
+        log.info("Document {} updated in PostgreSQL", id);
+
+        // Check whether OCR has already completed.
+        Optional<String> content = minIORepository.loadTextIfExists(id);
+
+        if (content.isPresent()) {
+
+            String createdAt = saved.getCreatedOn() != null
+                    ? saved.getCreatedOn().toInstant().toString()
+                    : Instant.now().toString();
+
+            DocumentIndex index = new DocumentIndex(
+                    id.toString(),
+                    saved.getFilename(),
+                    content.get(),
+                    saved.getFilename(),
+                    createdAt
+            );
+
+            documentMessageProducer.sendIndexingRequest(index);
+
+            log.info(
+                    "Indexing update for document {} sent to RabbitMQ",
+                    id
+            );
+
+        } else {
+
+            log.info(
+                    "OCR not completed for document {}. " +
+                            "Metadata updated; indexing will happen after OCR.",
+                    id
+            );
+        }
 
         return Optional.of(documentMapper.toDTO(saved));
+    }
+
+    public int reindexAllDocuments() {
+        List<Document> documents = documentRepository.findAll();
+
+        int queuedCount = 0;
+
+        for (Document document : documents) {
+            UUID id = document.getId();
+
+            try {
+                String content = minIORepository.loadText(id);
+
+                String createdAt = document.getCreatedOn() != null
+                        ? document.getCreatedOn()
+                        .toInstant()
+                        .toString()
+                        : Instant.now().toString();
+
+                DocumentIndex index = new DocumentIndex(
+                        id.toString(),
+                        document.getFilename(),
+                        content,
+                        document.getFilename(),
+                        createdAt
+                );
+
+                documentMessageProducer.sendIndexingRequest(index);
+
+                queuedCount++;
+
+                log.info("Reindexing request for document {} sent to RabbitMQ", id);
+
+            } catch (Exception e) {
+                log.error("Reindexing failed for document {}", id, e);
+            }
+        }
+
+        log.info(
+                "Reindexing requests queued: {} of {} documents",
+                queuedCount,
+                documents.size()
+        );
+
+        return queuedCount;
     }
 
     // HELPER

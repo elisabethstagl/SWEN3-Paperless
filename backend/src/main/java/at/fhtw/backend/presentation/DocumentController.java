@@ -3,12 +3,16 @@ package at.fhtw.backend.presentation;
 import at.fhtw.backend.business.DocumentService;
 import at.fhtw.backend.dto.DocumentDTO;
 import jakarta.validation.Valid;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,6 +42,17 @@ public class DocumentController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/{id}/file")
+    public ResponseEntity<InputStreamResource> getDocumentFile(@PathVariable UUID id) {
+        Optional<InputStream> file = documentService.getDocumentFile(id);
+        if (file.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
+                .body(new InputStreamResource(file.get()));
+    }
 
     @PostMapping
     public ResponseEntity<DocumentDTO> uploadDocument(@RequestParam("file") MultipartFile file) throws IOException {

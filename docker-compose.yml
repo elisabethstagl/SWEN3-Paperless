@@ -1,3 +1,4 @@
+
 services:
   postgres:
     image: postgres:17
@@ -35,11 +36,18 @@ services:
       OCR_RESULT_QUEUE: ${OCR_RESULT_QUEUE}
       GENAI_REQUEST_QUEUE: ${GENAI_REQUEST_QUEUE}
       GENAI_RESULT_QUEUE: ${GENAI_RESULT_QUEUE}
+      MINIO_URL: http://minio:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      INDEXING_QUEUE: ${INDEXING_QUEUE:-indexing.request}
     ports:
       - "8081:8081"
     depends_on:
       - postgres
       - rabbitmq
+      - minio
+      - elasticsearch
 
   ocr-worker:
     build: ./ocr-worker
@@ -49,8 +57,14 @@ services:
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       OCR_REQUEST_QUEUE: ${OCR_REQUEST_QUEUE}
+      OCR_RESULT_QUEUE: ${OCR_RESULT_QUEUE}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     depends_on:
       - rabbitmq
+      - minio
+    restart: on-failure
 
   frontend:
     build: ./frontend
@@ -62,8 +76,72 @@ services:
       - backend
 
 
+  minio:
+    image: elestio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server --address ":9000" --console-address ":9001" /data
+
+
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.1
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - logger.level=WARN
+    ports:
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.4.1
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - LOGGING_ROOT_LEVEL=error
+    ports:
+      - "127.0.0.1:5601:5601"
+    depends_on:
+      - elasticsearch
+
+  indexing-worker:
+    build: ./indexing-worker
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      INDEXING_QUEUE: ${INDEXING_QUEUE:-indexing.request}
+      LOGSTASH_HOST: logstash
+      LOGSTASH_PORT: 5000
+    depends_on:
+      - rabbitmq
+      - logstash
+    restart: on-failure
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.4.1
+    environment:
+      LS_JAVA_OPTS: "-Xms256m -Xmx256m"
+      XPACK_MONITORING_ENABLED: "false"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    depends_on:
+      - elasticsearch
+    restart: on-failure
 
 
 volumes:
   postgres-data:
+  minio-data:
+  es-data:
 
