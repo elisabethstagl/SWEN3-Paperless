@@ -576,9 +576,10 @@ Another important lesson was the importance of validation and user feedback. Val
 | OCR-Worker                        |   4.5    |
 | Elasticsearch Backend & Docker    |   6.0    |
 | Elasticsearch Frontend, Searchbar |   2.5    |
+| Logstash and Indexing-Worker      |   3.0    |
 | Adjusting Frontend/Backend Tests  |   1.0    |
 | Protocol / Project Specification  |   1.0    |
-| **Subtotal**                      | **15.0** |
+| **Subtotal**                      | **18.0** |
 
 ## Maximilian Jandl
 

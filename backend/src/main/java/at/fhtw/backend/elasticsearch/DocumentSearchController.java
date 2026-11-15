@@ -44,7 +44,7 @@ public class DocumentSearchController {
         int count = documentService.reindexAllDocuments();
 
         return Map.of(
-                "message", "Reindexing completed",
+                "message", "Reindexing requests queued",
                 "queuedDocuments", count
         );
     }
