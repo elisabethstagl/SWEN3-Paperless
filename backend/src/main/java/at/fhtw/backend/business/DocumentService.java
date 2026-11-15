@@ -2,7 +2,6 @@ package at.fhtw.backend.business;
 
 import at.fhtw.backend.PDFMetadataExtractor;
 import at.fhtw.backend.elasticsearch.DocumentIndex;
-import at.fhtw.backend.elasticsearch.DocumentSearchService;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.mapper.DocumentMapper;
@@ -32,20 +31,17 @@ public class DocumentService {
     private final Validator validator;
     private final DocumentMessageProducer documentMessageProducer;
     private final MinIORepository minIORepository;
-    private final DocumentSearchService documentSearchService;
-
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     public DocumentService(DocumentRepository documentRepository, DocumentMapper documentMapper, Validator validator,
-                           DocumentMessageProducer documentMessageProducer, MinIORepository minIORepository, DocumentSearchService documentSearchService) {
+                           DocumentMessageProducer documentMessageProducer, MinIORepository minIORepository) {
 
         this.documentRepository = documentRepository;
         this.documentMapper = documentMapper;
         this.validator = validator;
         this.documentMessageProducer = documentMessageProducer;
         this.minIORepository = minIORepository;
-        this.documentSearchService = documentSearchService;
     }
 
     public List<DocumentDTO> getAllDocuments() {
@@ -144,15 +140,8 @@ public class DocumentService {
                 createdAt
         );
 
-        try {
-            documentSearchService.indexDocument(index);
-            log.info("Document {} indexed in Elasticsearch", id);
-        } catch (IOException e) {
-            log.error("Failed to index document {} in Elasticsearch", id, e);
-            throw new IllegalStateException(
-                    "Elasticsearch indexing failed for document " + id, e
-            );
-        }
+        documentMessageProducer.sendIndexingRequest(index);
+        log.info("Indexing request for document {} sent to RabbitMQ", id);
     }
 
     public boolean deleteDocument(UUID id) {
@@ -163,23 +152,14 @@ public class DocumentService {
             return false;
         }
 
-        try {
-            documentSearchService.deleteDocument(id.toString());
-            log.info("Document {} deleted from Elasticsearch", id);
-        } catch (IOException e) {
-            log.error("Elasticsearch deletion failed for {}", id, e);
-            throw new IllegalStateException(
-                    "Failed to delete document from Elasticsearch", e
-            );
-        }
+        documentMessageProducer.sendDeleteRequest(id);
+        log.info("Delete request for document {} sent to RabbitMQ", id);
 
         documentRepository.delete(doc.get());
         minIORepository.delete(id);
         log.info("Document {} deleted", id);
         return true;
     }
-
-
 
     public Optional<DocumentDTO> updateDocument(
             UUID id,
@@ -200,35 +180,54 @@ public class DocumentService {
             throw new ConstraintViolationException(violations);
         }
 
-        documentMapper.updateEntity(documentDTO, existing.get());
+        Document document = existing.get();
 
-        Document saved = documentRepository.save(existing.get());
+        documentMapper.updateEntity(documentDTO, document);
+
+        Document saved = documentRepository.save(document);
+
         log.info("Document {} updated in PostgreSQL", id);
 
-        try {
-            documentSearchService.updateDocumentMetadata(
+        // Check whether OCR has already completed.
+        Optional<String> content = minIORepository.loadTextIfExists(id);
+
+        if (content.isPresent()) {
+
+            String createdAt = saved.getCreatedOn() != null
+                    ? saved.getCreatedOn().toInstant().toString()
+                    : Instant.now().toString();
+
+            DocumentIndex index = new DocumentIndex(
                     id.toString(),
-                    saved.getFilename()
+                    saved.getFilename(),
+                    content.get(),
+                    saved.getFilename(),
+                    createdAt
             );
 
-            log.info("Document {} updated in Elasticsearch", id);
+            documentMessageProducer.sendIndexingRequest(index);
 
-        } catch (IOException e) {
-            log.error("Failed to update document {} in Elasticsearch", id, e);
+            log.info(
+                    "Indexing update for document {} sent to RabbitMQ",
+                    id
+            );
 
-            throw new IllegalStateException(
-                    "Elasticsearch update failed for document " + id, e
+        } else {
+
+            log.info(
+                    "OCR not completed for document {}. " +
+                            "Metadata updated; indexing will happen after OCR.",
+                    id
             );
         }
 
         return Optional.of(documentMapper.toDTO(saved));
     }
 
-
     public int reindexAllDocuments() {
         List<Document> documents = documentRepository.findAll();
 
-        int indexedCount = 0;
+        int queuedCount = 0;
 
         for (Document document : documents) {
             UUID id = document.getId();
@@ -250,11 +249,11 @@ public class DocumentService {
                         createdAt
                 );
 
-                documentSearchService.indexDocument(index);
+                documentMessageProducer.sendIndexingRequest(index);
 
-                indexedCount++;
+                queuedCount++;
 
-                log.info("Document {} reindexed successfully", id);
+                log.info("Reindexing request for document {} sent to RabbitMQ", id);
 
             } catch (Exception e) {
                 log.error("Reindexing failed for document {}", id, e);
@@ -263,11 +262,11 @@ public class DocumentService {
 
         log.info(
                 "Reindexing finished: {} of {} documents indexed",
-                indexedCount,
+                queuedCount,
                 documents.size()
         );
 
-        return indexedCount;
+        return queuedCount;
     }
 
     // HELPER
