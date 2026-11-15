@@ -6,5 +6,4 @@ public record DocumentIndex(
         String content,
         String fileName,
         String createdAt) {
-
 }

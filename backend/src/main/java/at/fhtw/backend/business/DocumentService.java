@@ -275,7 +275,6 @@ public class DocumentService {
         return indexedCount;
     }
 
-
     // HELPER
 
     private void validateFile(MultipartFile file) {

@@ -10,10 +10,11 @@ import {PaperlessDocument} from '../../models/paperless-document';
 import {DocumentApiService} from '../../services/document-api-service';
 import {DocumentMetadata} from '../../components/document-metadata/document-metadata';
 import {DocumentNotes} from '../../components/document-notes/document-notes';
+import {DocumentSearchResults} from '../../components/document-search-results/document-search-results';
 
 @Component({
   selector: 'app-document-details',
-  imports: [Header, MatIconModule, MatButtonModule, MatTooltipModule, DocumentMetadata, DocumentNotes],
+  imports: [Header, MatIconModule, MatButtonModule, MatTooltipModule, DocumentMetadata, DocumentNotes, DocumentSearchResults],
   templateUrl: './document-details.html',
   styleUrl: './document-details.css',
 })

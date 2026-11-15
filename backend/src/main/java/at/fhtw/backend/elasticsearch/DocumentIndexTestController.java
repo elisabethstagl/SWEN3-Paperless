@@ -58,5 +58,14 @@ public class DocumentIndexTestController {
         );
     }
 
+    @GetMapping("/documents/{id}/search")
+    public DocumentHighlightResult searchInDocument(
+            @PathVariable String id,
+            @RequestParam String q) throws IOException {
+
+        return searchService.searchInDocument(id, q);
+    }
+
+
 
 }
