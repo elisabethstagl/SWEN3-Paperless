@@ -1,0 +1,35 @@
+
+@if (searchTerm()) {
+  <section class="search-results">
+    <h3>Search results</h3>
+
+    @if (state().loading) {
+      <p class="search-status">Searching...</p>
+    } @else if (state().error) {
+      <p class="search-status">
+        Search is currently unavailable.
+      </p>
+    } @else if (snippets().length === 0) {
+      <p class="search-status">
+        No matches found in this document.
+      </p>
+    } @else {
+      <p class="result-count">
+        {{ snippets().length }}
+        {{ snippets().length === 1 ? 'match found' : 'matches found' }}
+      </p>
+
+      @for (snippet of snippets(); track $index) {
+        <div class="result-snippet">
+          @for (part of splitHighlight(snippet); track $index) {
+            @if (part.highlighted) {
+              <mark>{{ part.text }}</mark>
+            } @else {
+              <span>{{ part.text }}</span>
+            }
+          }
+        </div>
+      }
+    }
+  </section>
+}

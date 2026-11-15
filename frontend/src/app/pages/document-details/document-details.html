@@ -26,6 +26,11 @@
       </section>
 
       <div class="right-column">
+
+        <app-document-search-results
+          [documentId]="document.id">
+        </app-document-search-results>
+
         <app-document-metadata
           [document]="document"
           (documentUpdated)="onDocumentUpdated($event)">

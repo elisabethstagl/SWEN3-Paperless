@@ -1,10 +1,21 @@
-<div class="document-container">
-  @for (doc of documentStore.documents(); track doc.id) {
-    <app-document-card
-      [document]="doc"
-      (delete)="documentStore.delete(doc.id)"
-    />
-  } @empty {
-    <p>There are no items.</p>
-  }
-</div>
+
+@if (isSearching()) {
+  <p>Searching...</p>
+}
+
+@if (searchError()) {
+  <p>Search is currently unavailable.</p>
+}
+
+@if (!isSearching() && !searchError()) {
+  <div class="document-container">
+    @for (doc of visibleDocuments(); track doc.id) {
+      <app-document-card
+        [document]="doc"
+        (delete)="documentStore.delete(doc.id)"
+      />
+    } @empty {
+      <p>No matching documents found.</p>
+    }
+  </div>
+}

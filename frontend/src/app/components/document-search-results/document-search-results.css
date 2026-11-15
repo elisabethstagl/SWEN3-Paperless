@@ -1,0 +1,42 @@
+
+.search-results {
+  border: 1px solid #ecd8d2;
+  border-radius: 18px;
+  padding: 20px;
+  background-color: #fffaf9;
+  font-family: "DM Sans", sans-serif;
+}
+
+.search-results h3 {
+  margin: 0 0 12px;
+  font-family: "DM Serif Display", serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #4a2f27;
+}
+
+.result-count,
+.search-status {
+  color: #8a6f66;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.result-snippet {
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 12px;
+  background-color: #f7eeeb;
+  color: #4a2f27;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.result-snippet mark {
+  background-color: #f4dca2;
+  color: #4a2f27;
+  border-radius: 3px;
+  padding: 1px 2px;
+  font-weight: 600;
+}
