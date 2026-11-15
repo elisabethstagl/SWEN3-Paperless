@@ -1,11 +1,12 @@
 
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import {
   Router,
   RouterLink,
   NavigationEnd
 } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { debounce, form, FormField } from '@angular/forms/signals';
 import { filter, map, startWith } from 'rxjs';
 
 import { MatDivider } from '@angular/material/divider';
@@ -17,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-header',
   imports: [
     RouterLink,
+    FormField,
     MatDivider,
     MatFormFieldModule,
     MatInputModule,
@@ -28,7 +30,11 @@ import { MatIconModule } from '@angular/material/icon';
 export class Header {
   private readonly router = inject(Router);
 
-  readonly searchQuery = signal('');
+  private readonly searchQuery = signal('');
+
+  readonly searchForm = form(this.searchQuery, path => {
+    debounce(path, 300);
+  });
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -37,6 +43,10 @@ export class Header {
       startWith(this.router.url)
     ),
     { initialValue: this.router.url }
+  );
+
+  private readonly urlQuery = computed(() =>
+    this.router.parseUrl(this.currentUrl()).queryParams['q'] ?? ''
   );
 
   readonly isDocumentDetails = computed(() =>
@@ -50,20 +60,27 @@ export class Header {
   );
 
   constructor() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      const tree = this.router.parseUrl(this.router.url);
-      this.searchQuery.set(tree.queryParams['q'] ?? '');
+    effect(() => {
+      const urlQuery = this.urlQuery();
+      untracked(() => {
+        if (this.searchQuery().trim() !== urlQuery) {
+          this.searchQuery.set(urlQuery);
+        }
+      });
     });
 
-    const tree = this.router.parseUrl(this.router.url);
-    this.searchQuery.set(tree.queryParams['q'] ?? '');
+    effect(() => {
+      const query = this.searchForm().value().trim();
+      untracked(() => {
+        if (query !== this.urlQuery()) {
+          this.search(query);
+        }
+      });
+    });
   }
 
   search(query: string): void {
     const trimmedQuery = query.trim();
-    this.searchQuery.set(trimmedQuery);
 
     if (this.isDocumentDetails()) {
       void this.router.navigate([], {

@@ -96,6 +96,7 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - logger.level=WARN
     ports:
       - "127.0.0.1:9200:9200"
     volumes:
@@ -105,6 +106,7 @@ services:
     image: docker.elastic.co/kibana/kibana:9.4.1
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - LOGGING_ROOT_LEVEL=error
     ports:
       - "127.0.0.1:5601:5601"
     depends_on:

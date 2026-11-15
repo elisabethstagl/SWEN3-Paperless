@@ -18,7 +18,7 @@
           type="search"
           [placeholder]="placeholder()"
           [attr.aria-label]="placeholder()"
-          [value]="searchQuery()"
+          [formField]="searchForm"
           (keyup.enter)="search(searchInput.value)"
         />
 
