@@ -132,7 +132,6 @@ public class DocumentService {
         minIORepository.saveText(id, content);
         log.info("Content of document {} saved in MinIO", id);
 
-        // 2. Elasticsearch-Dokument erstellen
         String createdAt = document.getCreatedOn() != null
                 ? document.getCreatedOn().toInstant().toString()
                 : Instant.now().toString();
@@ -235,17 +234,14 @@ public class DocumentService {
             UUID id = document.getId();
 
             try {
-                // 1. OCR-Text aus MinIO laden
                 String content = minIORepository.loadText(id);
 
-                // 2. Erstellungsdatum übernehmen
                 String createdAt = document.getCreatedOn() != null
                         ? document.getCreatedOn()
                         .toInstant()
                         .toString()
                         : Instant.now().toString();
 
-                // 3. Elasticsearch-Dokument erstellen
                 DocumentIndex index = new DocumentIndex(
                         id.toString(),
                         document.getFilename(),
@@ -254,7 +250,6 @@ public class DocumentService {
                         createdAt
                 );
 
-                // 4. In Elasticsearch speichern
                 documentSearchService.indexDocument(index);
 
                 indexedCount++;

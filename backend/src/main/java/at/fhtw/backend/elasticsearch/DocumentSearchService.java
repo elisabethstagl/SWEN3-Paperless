@@ -101,7 +101,7 @@ public class DocumentSearchService {
                                                 "content",
                                                 HighlightField.of(f -> f
                                                         .fragmentSize(160)
-                                                        .numberOfFragments(5)
+                                                        .numberOfFragments(10)
                                                 )
                                         )
                                 ))

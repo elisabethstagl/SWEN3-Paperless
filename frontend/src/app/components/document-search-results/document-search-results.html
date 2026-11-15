@@ -16,7 +16,7 @@
     } @else {
       <p class="result-count">
         {{ snippets().length }}
-        {{ snippets().length === 1 ? 'text excerpt' : 'text excerpts' }}
+        {{ snippets().length === 1 ? 'match found' : 'matches found' }}
       </p>
 
       @for (snippet of snippets(); track $index) {

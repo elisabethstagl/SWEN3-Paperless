@@ -1,5 +1,6 @@
 package at.fhtw.backend.business;
 
+import at.fhtw.backend.elasticsearch.DocumentSearchService;
 import at.fhtw.backend.mapper.DocumentMapper;
 import at.fhtw.backend.model.Document;
 import at.fhtw.backend.dto.DocumentDTO;
@@ -11,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +32,9 @@ class DocumentServiceTest {
 
     @Mock
     private MinIORepository minIORepository;
+
+    @Mock
+    private DocumentSearchService documentSearchService;
 
     @InjectMocks
     private DocumentService documentService;
@@ -124,8 +130,9 @@ class DocumentServiceTest {
         verify(documentMapper, never()).toDTO(any());
     }
 
+
     @Test
-    void deleteDocument_existingDocument_deletesDocument() {
+    void deleteDocument_existingDocument_deletesDocument() throws IOException {
         UUID id = UUID.randomUUID();
 
         Document document = Document.builder()
@@ -143,6 +150,7 @@ class DocumentServiceTest {
         verify(documentRepository).findById(id);
         verify(documentRepository).delete(document);
         verify(minIORepository).delete(id);
+        verify(documentSearchService).deleteDocument(id.toString());
     }
 
     @Test
@@ -158,5 +166,9 @@ class DocumentServiceTest {
 
         verify(documentRepository).findById(id);
         verify(documentRepository, never()).delete(any());
+        verify(minIORepository, never()).delete(any());
+
+        verifyNoInteractions(documentSearchService);
     }
+
 }
