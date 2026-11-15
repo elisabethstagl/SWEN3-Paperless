@@ -45,7 +45,7 @@ public class DocumentSearchController {
 
         return Map.of(
                 "message", "Reindexing completed",
-                "indexedDocuments", count
+                "queuedDocuments", count
         );
     }
 }

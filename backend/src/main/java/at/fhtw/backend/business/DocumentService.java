@@ -261,7 +261,7 @@ public class DocumentService {
         }
 
         log.info(
-                "Reindexing finished: {} of {} documents indexed",
+                "Reindexing requests queued: {} of {} documents",
                 queuedCount,
                 documents.size()
         );

@@ -21,16 +21,6 @@ public class DocumentSearchService {
         this.client = client;
     }
 
-    public void indexDocument(DocumentIndex document)
-            throws IOException {
-
-        client.index(i -> i
-                .index("paperless-documents")
-                .id(document.id())
-                .document(document)
-        );
-    }
-
     public List<DocumentIndex> searchDocuments(String query)
             throws IOException {
 
@@ -51,29 +41,6 @@ public class DocumentSearchService {
                 .filter(Objects::nonNull)
                 .toList();
     }
-
-
-    public void deleteDocument(String id) throws IOException {
-        client.delete(d -> d
-                .index("paperless-documents")
-                .id(id)
-        );
-    }
-
-    public void updateDocumentMetadata(String id, String filename)
-            throws IOException {
-
-        client.update(u -> u
-                        .index("paperless-documents")
-                        .id(id)
-                        .doc(Map.of(
-                                "title", filename,
-                                "fileName", filename
-                        )),
-                DocumentIndex.class
-        );
-    }
-
 
     public DocumentHighlightResult searchInDocument(
             String documentId,
