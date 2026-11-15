@@ -15,9 +15,7 @@ public class GlobalExceptionHandler {
 
     // if Spring Boot catches the problem before the validateFile() is called:
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public
-    ResponseEntity<String> handleMaxUploadSize(
-            MaxUploadSizeExceededException ex) {
+    public ResponseEntity<String> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
 
         return ResponseEntity
                 .status(HttpStatus.PAYLOAD_TOO_LARGE)
@@ -25,17 +23,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgument(
-            IllegalArgumentException ex) {
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ex.getMessage());
     }
 
+    // used when manual bean validation with Validator fails
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleConstraintViolation(
-            ConstraintViolationException ex) {
+    public ResponseEntity<String> handleConstraintViolation(ConstraintViolationException ex) {
 
         String message = ex.getConstraintViolations()
                 .stream()
@@ -49,6 +46,7 @@ public class GlobalExceptionHandler {
                 .body(message);
     }
 
+    // used when @Valid in Controller fails
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidation(
             MethodArgumentNotValidException ex) {

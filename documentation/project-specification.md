@@ -37,6 +37,7 @@ AI-generated summaries are planned for future development.
 | Bruno / Postman | Manual REST API testing |
 | Angular | Frontend framework |
 | Angular Material | UI components, dialogs, and notifications |
+| RabbitMQ | Message queue |
 
 ## Additional Technologies
 
@@ -57,7 +58,6 @@ The following technologies have been integrated into the project:
 
 
 Generative AI features, such as automatic document summaries, are planned for future development.
-
 
 ---
 
@@ -470,6 +470,16 @@ The tests cover components and services such as:
 Angular Router and HTTP dependencies are provided or mocked in the test environment.
 
 These tests verify that components can be created successfully and that selected application functionality behaves as expected.
+
+---
+
+# Messaging (RabbitMQ)
+
+The project currently contains a basic RabbitMQ integration running in its own container.
+
+Existing queues: `ocr.request`, `ocr.result`, `genai.request`, `genai.result`.
+
+When a document is uploaded, its ID is sent to the `ocr.request` queue. For now, a `DocumentMessageConsumer` in the backend reads from this queue and logs the message.
 
 ---
 

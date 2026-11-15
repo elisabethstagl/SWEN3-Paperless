@@ -161,9 +161,7 @@ public class DocumentService {
         return true;
     }
 
-    public Optional<DocumentDTO> updateDocument(
-            UUID id,
-            DocumentDTO documentDTO) {
+    public Optional<DocumentDTO> updateDocument(UUID id, DocumentDTO documentDTO) {
 
         Optional<Document> existing = documentRepository.findById(id);
 
@@ -172,8 +170,7 @@ public class DocumentService {
             return Optional.empty();
         }
 
-        Set<ConstraintViolation<DocumentDTO>> violations =
-                validator.validate(documentDTO);
+        Set<ConstraintViolation<DocumentDTO>> violations = validator.validate(documentDTO);
 
         if (!violations.isEmpty()) {
             log.warn("Validation failed for document {}: {}", id, violations);
