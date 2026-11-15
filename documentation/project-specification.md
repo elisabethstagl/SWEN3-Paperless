@@ -617,3 +617,16 @@ Another important lesson was the importance of validation and user feedback. Val
 | CI Testing Pipeline (Frontend + Backend) |   2.0    |
 | Protocol / Project Specification         |   0.5    |
 | **Subtotal**                             | **10.0** |
+
+### Sprint 4
+
+| Task / Feature                               | Time (h) |
+|----------------------------------------------|:--------:|
+| MinIO Setup (Docker, Config, Repository)     |   3.0    |
+| PDF Preview & Download (Backend + Frontend)  |   1.5    |
+| RabbitMQ Integration OCR-Worker + Logging    |   4.5    |
+| Search Debounce in Frontend                  |   1.0    |
+| Kibana & Elasticsearch Logging Configuration |   0.5    |
+| Adjusting Backend Tests (MinIO Mock)         |   1.5    |
+| Protocol / Project Specification             |   0.5    |
+| **Subtotal**                                 | **12.5** |
