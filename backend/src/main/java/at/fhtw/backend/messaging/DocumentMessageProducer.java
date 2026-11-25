@@ -44,6 +44,13 @@ public class DocumentMessageProducer {
         );
     }
 
+    public void sendGenAiRequest(UUID documentId) {
+        rabbitTemplate.convertAndSend(
+                genAiRequestQueue,
+                documentId.toString()
+        );
+    }
+
     public void sendIndexingRequest(DocumentIndex document) {
         Map<String, Object> message = Map.of(
                 "operation", "index",

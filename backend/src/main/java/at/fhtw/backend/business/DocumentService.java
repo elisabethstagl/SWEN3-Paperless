@@ -142,6 +142,9 @@ public class DocumentService {
 
         documentMessageProducer.sendIndexingRequest(index);
         log.info("Indexing request for document {} sent to RabbitMQ", id);
+
+        documentMessageProducer.sendGenAiRequest(id);
+        log.info("GenAI request for document {} sent to RabbitMQ", id);
     }
 
     public boolean deleteDocument(UUID id) {

@@ -66,6 +66,24 @@ services:
       - minio
     restart: on-failure
 
+  genai-worker:
+    build: ./genai-worker
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      GENAI_REQUEST_QUEUE: ${GENAI_REQUEST_QUEUE}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
+    depends_on:
+      - rabbitmq
+      - minio
+    restart: on-failure
+
   frontend:
     build: ./frontend
     volumes:
