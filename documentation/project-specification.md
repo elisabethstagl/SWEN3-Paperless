@@ -591,6 +591,15 @@ Another important lesson was the importance of validation and user feedback. Val
 | Protocol / Project Specification  |   1.0    |
 | **Subtotal**                      | **18.0** |
 
+### Sprint 5
+
+| Task / Feature                   | Time (h) |
+|----------------------------------|:--------:|
+| GenAI Implementation             |   2.5    |
+| Backend Tests                    |   1.0    |
+| Protocol / Project Specification |   0.5    |
+| **Subtotal**                     | **4.0**  |
+
 ## Maximilian Jandl
 
 ### Sprint 1
