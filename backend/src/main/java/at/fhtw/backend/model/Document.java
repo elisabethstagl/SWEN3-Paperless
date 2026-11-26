@@ -36,7 +36,7 @@ public class Document {
     @Column
     Date createdOn;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     String summary;
 
     @OneToMany(mappedBy = "document", orphanRemoval=true)

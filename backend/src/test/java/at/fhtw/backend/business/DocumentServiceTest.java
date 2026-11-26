@@ -8,6 +8,7 @@ import at.fhtw.backend.dto.DocumentDTO;
 import at.fhtw.backend.persistence.DocumentRepository;
 import at.fhtw.backend.persistence.MinIORepository;
 
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,6 +39,9 @@ class DocumentServiceTest {
 
     @InjectMocks
     private DocumentService documentService;
+
+    @Mock
+    private Validator validator;
 
     @Test
     void getAllDocuments_returnsAllDocuments() {
@@ -165,5 +169,56 @@ class DocumentServiceTest {
         verify(minIORepository, never()).delete(any());
 
         verifyNoInteractions(documentMessageProducer);
+    }
+
+    @Test
+    void saveSummary_existingDocument_savesSummary() {
+        UUID id = UUID.randomUUID();
+        String summary = "This document contains an invoice.";
+
+        Document document = Document.builder()
+                .id(id)
+                .filename("invoice.pdf")
+                .pages(1)
+                .build();
+
+        when(documentRepository.findById(id))
+                .thenReturn(Optional.of(document));
+
+        documentService.saveSummary(id, summary);
+
+        assertEquals(summary, document.getSummary());
+
+        verify(documentRepository).findById(id);
+        verify(documentRepository).save(document);
+    }
+
+    @Test
+    void saveSummary_unknownDocument_doesNotSave() {
+        UUID id = UUID.randomUUID();
+
+        when(documentRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        documentService.saveSummary(id, "Generated summary");
+
+        verify(documentRepository).findById(id);
+        verify(documentRepository, never()).save(any());
+    }
+
+    @Test
+    void saveSummary_emptySummary_doesNotSave() {
+        UUID id = UUID.randomUUID();
+
+        documentService.saveSummary(id, "");
+
+        verifyNoInteractions(documentRepository);
+    }
+
+    @Test
+    void saveSummary_nullDocumentId_doesNotSave() {
+        documentService.saveSummary(null, "Generated summary");
+
+        verifyNoInteractions(documentRepository);
     }
 }

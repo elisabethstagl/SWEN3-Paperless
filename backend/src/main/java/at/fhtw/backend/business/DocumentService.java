@@ -269,6 +269,38 @@ public class DocumentService {
         return queuedCount;
     }
 
+    public void saveSummary(UUID id, String summary) {
+
+        if (id == null) {
+            log.warn("GenAI result received without document ID");
+            return;
+        }
+
+        if (summary == null || summary.isBlank()) {
+            log.warn("Empty summary received for document {}", id);
+            return;
+        }
+
+        Optional<Document> documentOptional =
+                documentRepository.findById(id);
+
+        if (documentOptional.isEmpty()) {
+            log.warn(
+                    "GenAI result discarded: document {} not found",
+                    id
+            );
+            return;
+        }
+
+        Document document = documentOptional.get();
+
+        document.setSummary(summary.strip());
+
+        documentRepository.save(document);
+
+        log.info("Summary saved for document {}", id);
+    }
+
     // HELPER
 
     private void validateFile(MultipartFile file) {
