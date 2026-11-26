@@ -41,10 +41,28 @@ def ocr_page(page):
 
 
 def ocr(pdf):
-    pages = convert_from_bytes(pdf, dpi=OCR_DPI)
-    page_texts = [ocr_page(page) for page in pages]
-    return "\n\n".join(page_texts)
+    log.info("Converting PDF to images at %d DPI", OCR_DPI)
 
+    pages = convert_from_bytes(pdf, dpi=OCR_DPI)
+
+    log.info("PDF contains %d pages", len(pages))
+
+    page_texts = []
+
+    for index, page in enumerate(pages, start=1):
+        log.info(
+            "Processing OCR page %d/%d",
+            index, len(pages)
+        )
+
+        page_texts.append(ocr_page(page))
+
+        log.info(
+            "Finished OCR page %d/%d",
+            index, len(pages)
+        )
+
+    return "\n\n".join(page_texts)
 
 def send_result(channel, document_id, text):
     channel.basic_publish(
